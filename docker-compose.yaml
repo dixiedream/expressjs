@@ -1,24 +1,23 @@
 # Use only for development
-version: "3"
+version: "3.7"
 
 services:
   backend:
-    build: .
+    build:
+      context: ./
+      target: builder
+      args:
+        - NODE_ENV=development
     image: backend:latest
     container_name: backend
     environment:
-      - NODE_ENV=development
       - MONGO_CONNECTION=yourCloudAtlasMongoDBConnectionString
     volumes:
       - .:/usr/src/app
-      - backendModules:/usr/src/app/node_modules
     ports:
       - 3000:3000
       - 9229:9229
-    command: npm run start
-
-volumes:
-  backendModules:
+    command: sh scripts/dev.sh
 
 networks:
   server:
