@@ -1,0 +1,42 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "version": "0.0.1",
+        "title": "Expressjs boilerplate"
+    },
+    "host": "localhost:3000",
+    "basePath": "",
+    "schemes": [
+        "http",
+        "https"
+    ],
+    "consumes": [
+        "application/json"
+    ],
+    "produces": [
+        "application/json"
+    ],
+    "paths": {
+        "/swagger": {
+            "x-swagger-pipe": "swagger_raw"
+        }
+    },
+    "definitions": {
+        "ErrorResponse": {
+            "required": [
+                "type",
+                "message"
+            ],
+            "properties": {
+                "message": {
+                    "type": "string",
+                    "description": "Human readable error description"
+                },
+                "type": {
+                    "type": "string",
+                    "description": "Object error class"
+                }
+            }
+        }
+    }
+}

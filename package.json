@@ -7,9 +7,22 @@
         "lint": "eslint src/**",
         "test": ""
     },
+    "keywords": [
+        "nodejs",
+        "expressjs",
+        "rest"
+    ],
     "author": "Alessandro Lucarini",
     "license": "ISC",
-    "dependencies": {},
+    "dependencies": {
+        "bcrypt": "^3.0.6",
+        "express": "^4.17.1",
+        "mongoose": "^5.7.1",
+        "passport": "^0.4.0",
+        "passport-jwt": "^4.0.0",
+        "swagger-express-mw": "^0.7.0",
+        "swagger-ui-express": "^4.1.0"
+    },
     "devDependencies": {
         "eslint": "^5",
         "eslint-config-airbnb-base": "14.0.0",
