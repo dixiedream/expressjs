@@ -41,10 +41,10 @@ WORKDIR /usr/src/app
 COPY --from=builder /usr/src/app/ .
 RUN ["npm", "run", "test"]
 
-# Starts and Serves Web Page
+# Starts and serve API
 FROM base as serve
 
 WORKDIR /usr/src/app
-COPY --from=builder /usr/src/app/dest ./
+COPY --from=builder /usr/src/app/ ./
 COPY --from=builder /usr/src/app/package* ./
 CMD ["npm", "run", "start:prod"]

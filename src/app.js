@@ -1,15 +1,13 @@
-'use strict';
-
-const express = require('express');
-const mongoose = require('mongoose');
+const express = require("express");
+const mongoose = require("mongoose");
 
 const app = express();
 const port = process.env.PORT || 3000;
 const mongoConnection = process.env.MONGO_CONNECTION;
 
 // Setup swagger route for displaying docs
-const swaggerUI = require('swagger-ui-express');
-const swaggerConfig = require('./config/swagger.json');
+const swaggerUI = require("swagger-ui-express");
+const swaggerConfig = require("./config/swagger.json");
 
 /**
  * Your routes loading goes here
@@ -23,27 +21,25 @@ mongoose
     useUnifiedTopology: true
   })
   .then(() => {
-    console.log('Connected to db');
+    console.log("Connected to db");
   })
   .catch(err => {
     console.log(err);
   });
 
-
 //  Middlewares
 app.use(express.json());
-app.use('/docs', swaggerUI.serve, swaggerUI.setup(swaggerConfig));
+app.use("/docs", swaggerUI.serve, swaggerUI.setup(swaggerConfig));
 
-app.get('/', (req, res) => {
+app.get("/", (req, res) => {
   console.log(req.name);
-  res.send('Index');
+  res.send("Index");
 });
 
 /**
  * Setup Express router
+ * ex. app.use("yourAPIEndPoint", routeFile)
  */
-app.use('/api/sessions/rules', sessionRules);
-app.use('/api/users', users);
 
 // Start server
 app.listen(port, () => {
