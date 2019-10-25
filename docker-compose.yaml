@@ -10,8 +10,8 @@ services:
         - NODE_ENV=development
     image: backend:latest
     container_name: backend
-    environment:
-      - MONGO_CONNECTION=yourCloudAtlasMongoDBConnectionString
+    env_file:
+      - ./.env
     volumes:
       - .:/usr/src/app
     ports:
