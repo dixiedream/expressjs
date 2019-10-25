@@ -1,14 +1,6 @@
 # Express.js
 Boilerplate for creating nodejs app using Docker multistage build
 
-## Technology stack
-
-Key pillars of chosen application stack are:
-* [swagger-node](https://github.com/swagger-api/swagger-node) - specification-first routing, request validation, using [Express](https://expressjs.com/) underneath.
-* [Passport](http://passportjs.org/) - de-facto standard authentication middleware in Node.js
-* [node.bcrypt.js](https://github.com/kelektiv/node.bcrypt.js) - used for hashing passwords associated with example User model
-* [node-jwt-simple](https://github.com/hokaccha/node-jwt-simple) - encoding/decoding JSON Web Tokens, used for basic route authentication
-
 ## Application structure
 
 ```
