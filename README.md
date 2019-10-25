@@ -33,6 +33,7 @@ Follow [Airbnb style guide](https://github.com/airbnb/javascript). [ESLint](http
 * Install [VSCode](https://code.visualstudio.com/) IDE
 * Install VSCode extensions ESlint and Prettier
 * Install [Docker](https://docs.docker.com/install/)
+* Create your own `.env` file based on `default.env`
 * Run `docker-compose up`
 
 ## Contributing
