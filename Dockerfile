@@ -16,7 +16,7 @@ RUN apk --no-cache add --update tzdata \
 # Copies in our code and runs NPM Install
 FROM base as builder
 
-ARG NODE_ENV=development
+ARG NODE_ENV=production
 ENV NODE_ENV=${NODE_ENV}
 
 RUN apk --no-cache add --virtual builds-deps build-base python \
