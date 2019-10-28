@@ -18,6 +18,24 @@ services:
       - 3000:3000
       - 9229:9229
     command: sh scripts/dev.sh
+    networks: 
+      - server
+
+  db:
+    image: mongo:latest
+    container_name: backenddb
+    env_file:
+      - ./.env
+    volumes:
+      - dbdata:/data/db
+    ports:
+      - 27017:27017
+    networks: 
+      - server
+
+volumes:
+  backendModules:
+  dbdata:
 
 networks:
   server:
