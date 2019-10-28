@@ -17,20 +17,26 @@ Follow [Airbnb style guide](https://github.com/airbnb/javascript). [ESLint](http
 
 ## Useful links
 
-* Use [Swagger editor](editor.swagger.io) for defining new routes.
-* Documentation for [OpenAPI specs](https://swagger.io/specification/v2/)
+- Use [Swagger editor](editor.swagger.io) for defining new routes.
+- Documentation for [OpenAPI specs](https://swagger.io/specification/v2/)
 
-## Setup 
+## Setup
 
-* Install [VSCode](https://code.visualstudio.com/) IDE
-* Install VSCode extensions ESlint and Prettier
-* Install [Docker](https://docs.docker.com/install/)
-* Create your own `.env` file based on `default.env`
-* Run `docker-compose up`
+- Install [VSCode](https://code.visualstudio.com/) IDE
+- Install VSCode extensions ESlint and Prettier
+- Install [Docker](https://docs.docker.com/install/)
+- Create your own `.env` file based on `default.env`
+- Run `docker-compose up`
+
+## Extra
+
+To connect with a GUI to the dev mongo db instance us [MongoDb Compass](https://www.mongodb.com/download-center/compass)
+
 
 ## Contributing
 
 If something is unclear, confusing, or needs to be refactored, please let us know. Pull requests are always welcome, but note the minimalistic nature of the repository - it's designed as lean, universal starting point for actual projects, and nothing more.
 
 ## License
+
 The MIT License (MIT)
