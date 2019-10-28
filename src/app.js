@@ -1,9 +1,7 @@
 const express = require("express");
-const mongoose = require("mongoose");
 
 const app = express();
 const port = process.env.PORT || 3000;
-const mongoConnection = process.env.MONGO_CONNECTION;
 
 // Setup swagger route for displaying docs
 const swaggerUI = require("swagger-ui-express");
@@ -13,19 +11,11 @@ const swaggerConfig = require("./config/swagger.json");
  * Your routes loading goes here
  * ex. const users = require('./api/routes/users');
  */
+const auth = require("./api/routes/auth");
+const users = require("./api/routes/users");
 
-// Db connection
-mongoose
-  .connect(mongoConnection, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-  })
-  .then(() => {
-    console.log("Connected to db");
-  })
-  .catch(err => {
-    console.log(err);
-  });
+// Db setup
+require("./config/db");
 
 //  Middlewares
 app.use(express.json());
@@ -40,6 +30,8 @@ app.get("/", (req, res) => {
  * Setup Express router
  * ex. app.use("yourAPIEndPoint", routeFile)
  */
+app.use("/api/auth", auth);
+app.use("/api/users", users);
 
 // Start server
 app.listen(port, () => {
