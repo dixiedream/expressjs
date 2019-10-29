@@ -2,9 +2,11 @@ const express = require("express");
 
 const app = express();
 const port = process.env.PORT || 3000;
+const swaggerUI = require("swagger-ui-express");
+require("express-async-errors");
+const error = require("./middleware/error");
 
 // Setup swagger route for displaying docs
-const swaggerUI = require("swagger-ui-express");
 const swaggerConfig = require("./config/openapi.json");
 
 /**
@@ -14,6 +16,7 @@ const auth = require("./api/routes/auth");
 const users = require("./api/routes/users");
 
 // Db setup
+require("./config/logger");
 require("./config/db");
 
 //  Middlewares
@@ -30,6 +33,7 @@ app.get("/", (req, res) => {
  */
 app.use("/api/auth", auth);
 app.use("/api/users", users);
+app.use(error);
 
 // Start server
 app.listen(port, () => {
