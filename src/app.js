@@ -5,11 +5,10 @@ const port = process.env.PORT || 3000;
 
 // Setup swagger route for displaying docs
 const swaggerUI = require("swagger-ui-express");
-const swaggerConfig = require("./config/swagger.json");
+const swaggerConfig = require("./config/openapi.json");
 
 /**
  * Your routes loading goes here
- * ex. const users = require('./api/routes/users');
  */
 const auth = require("./api/routes/auth");
 const users = require("./api/routes/users");
@@ -28,7 +27,6 @@ app.get("/", (req, res) => {
 
 /**
  * Setup Express router
- * ex. app.use("yourAPIEndPoint", routeFile)
  */
 app.use("/api/auth", auth);
 app.use("/api/users", users);

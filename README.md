@@ -7,8 +7,8 @@ Boilerplate for creating nodejs app using Docker multistage build
 src/api/controllers/ # actual API request handlers
 src/api/models/ # Mongoose model
 src/api/routes/ # Routes definitions
-src/config/ # Common configuration files (es. swagger.json)
-test/ # tests for controllers, models, other logical units - within properly reflected file structure
+src/config/ # Common configuration files (es. openapi.json)
+tests/ # tests for controllers, models, other logical units - within properly reflected file structure
 ```
 
 ## Code style
