@@ -4,6 +4,7 @@ const APIError = require("../shared/errors/APIError");
 const NotAuthorizedError = require("../shared/errors/UserError/UserNotAuthorizedError");
 const MissingTokenError = require("../shared/errors/AuthorizationError/MissingTokenError");
 const InvalidTokenError = require("../shared/errors/AuthorizationError/InvalidTokenError");
+const logger = require("../config/logger");
 
 const { JWT_TOKEN } = process.env;
 
@@ -22,8 +23,12 @@ const auth = async (req, res, next) => {
     }
     req.user = user;
     req.token = token;
+    logger.info("USER_AUTHORIZED", { email: user.email });
     next();
   } catch (error) {
+    logger.error("AUTHORIZATION_FAILED", {
+      type: error.type
+    });
     if (
       error instanceof NotAuthorizedError ||
       error instanceof MissingTokenError

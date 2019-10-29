@@ -1,7 +1,13 @@
-const winston = require("winston");
+const logger = require("../config/logger");
 
-module.exports = (err, req, res) => {
-  winston.error(err.message, err);
+/**
+ * Error-handling middleware always takes four arguments.
+ * You must provide four arguments to identify it as an error-handling middleware function.
+ * Even if you don’t need to use the next object, you must specify it to maintain the signature.
+ * Otherwise, the next object will be interpreted as regular middleware and will fail to handle errors.
+ */
+module.exports = (err, req, res, next) => {
+  logger.error(err.message, err);
 
-  res.status(500).send("Something failed");
+  res.status(500).send({ message: "Something failed" });
 };

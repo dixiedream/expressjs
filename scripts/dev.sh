@@ -4,7 +4,7 @@ echo "Checking if node_modules exists..."
 if [ -e "node_modules" ]; then
    echo "Folder node exists, skipping installation"
 else
-    echo "Npm install..."
+   echo "Npm install..."
    exec npm install --quiet
 fi
 
