@@ -39,7 +39,10 @@ User.methods.generateAuthToken = function generateAuthToken() {
       _id: this._id,
       email: this.email
     },
-    JWT_TOKEN
+    JWT_TOKEN,
+    {
+      expiresIn: "7d"
+    }
   );
   return token;
 };
