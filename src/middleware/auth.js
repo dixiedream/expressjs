@@ -6,7 +6,7 @@ const MissingTokenError = require("../shared/errors/AuthorizationError/MissingTo
 const InvalidTokenError = require("../shared/errors/AuthorizationError/InvalidTokenError");
 const logger = require("../config/logger");
 
-const { JWT_TOKEN, JWT_ISSUER } = process.env;
+const { JWT_PRIVATE_KEY, JWT_ISSUER } = process.env;
 
 const auth = async (req, res, next) => {
   let token = req.header("Authorization");
@@ -16,7 +16,7 @@ const auth = async (req, res, next) => {
     }
 
     token = token.replace("Bearer ", "");
-    const data = jwt.verify(token, JWT_TOKEN, {
+    const data = jwt.verify(token, JWT_PRIVATE_KEY, {
       algotithms: ["HS256"],
       issuer: [JWT_ISSUER]
     });

@@ -5,8 +5,7 @@
         "start": "nodemon --inspect=127.0.0.1:9229 src/app.js",
         "start:prod": "node src/app.js",
         "lint": "eslint src/**.js",
-        "test": "jest --watchAll",
-        "test:prod": "jest"
+        "test": "jest --maxWorkers=1"
     },
     "keywords": [
         "nodejs",
@@ -35,6 +34,11 @@
         "eslint-plugin-prettier": "^3.1.1",
         "jest": "^24.9.0",
         "nodemon": "^1.19.4",
-        "prettier": "^1.18.2"
+        "prettier": "^1.18.2",
+        "supertest": "^4.0.2"
+    },
+    "jest": {
+        "testEnvironment": "node",
+        "verbose": true
     }
 }

@@ -8,7 +8,7 @@ const jwt = require("jsonwebtoken");
 const Joi = require("@hapi/joi");
 const mongoose = require("mongoose");
 
-const { JWT_TOKEN } = process.env;
+const { JWT_PRIVATE_KEY, JWT_ISSUER } = process.env;
 const { Schema } = mongoose;
 
 const User = new Schema({
@@ -39,9 +39,10 @@ User.methods.generateAuthToken = function generateAuthToken() {
       _id: this._id,
       email: this.email
     },
-    JWT_TOKEN,
+    JWT_PRIVATE_KEY,
     {
-      expiresIn: "7d"
+      expiresIn: "7d",
+      issuer: JWT_ISSUER
     }
   );
   return token;

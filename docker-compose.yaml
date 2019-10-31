@@ -34,7 +34,6 @@ services:
       - server
 
 volumes:
-  backendModules:
   dbdata:
 
 networks:

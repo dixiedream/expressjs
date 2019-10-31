@@ -8,6 +8,8 @@ require("./config/db")();
 const port = process.env.PORT || 3000;
 
 // Start server
-app.listen(port, () => {
+const server = app.listen(port, () => {
   logger.info("SERVER_STARTED", { port });
 });
+
+module.exports = server;
