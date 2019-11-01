@@ -2,7 +2,7 @@ const { createLogger, format, transports } = require("winston");
 require("winston-mongodb");
 require("express-async-errors");
 
-const { SERVICE_NAME, MONGO__LOG_CONNECTION } = process.env;
+const { SERVICE_NAME, MONGO__LOG_CONNECTION, NODE_ENV } = process.env;
 
 const logger = createLogger({
   level: "info",
@@ -12,7 +12,7 @@ const logger = createLogger({
     }),
     format.json()
   ),
-  defaultMeta: { service: SERVICE_NAME || "Expressjs boilerplate" },
+  defaultMeta: { service: SERVICE_NAME || "Expressjs" },
   transports: [
     /**
      * - Write to all logs with level `info` and below to `combined.log`.
@@ -36,7 +36,7 @@ const logger = createLogger({
 // If we're not in production then **ALSO** log to the `console`
 // with the colorized simple format.
 //
-if (process.env.NODE_ENV !== "production") {
+if (NODE_ENV !== "production") {
   logger.add(
     new transports.Console({
       format: format.combine(format.colorize(), format.simple())

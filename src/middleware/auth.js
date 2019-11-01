@@ -29,7 +29,7 @@ const auth = async (req, res, next) => {
     logger.info("USER_AUTHORIZED", { email: user.email });
     next();
   } catch (error) {
-    logger.error("AUTHORIZATION_FAILED", {
+    logger.info("AUTHORIZATION_FAILED", {
       type: error.type
     });
     if (

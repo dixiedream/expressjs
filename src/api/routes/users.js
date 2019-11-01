@@ -22,7 +22,7 @@ router.post("/", (req, res) => {
     .catch(error => {
       if (error instanceof APIError) {
         const { type, message } = error;
-        logger.error("CREATE_USER_FAILED", { type, email: req.body.email });
+        logger.info("CREATE_USER_FAILED", { type, email: req.body.email });
         res.status(400).send({ type, message });
       }
     });

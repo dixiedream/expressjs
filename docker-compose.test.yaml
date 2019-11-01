@@ -1,0 +1,44 @@
+# Use only for tests development
+version: "3.7"
+
+services:
+  backend:
+    stdin_open: true
+    tty: true
+    build:
+      context: ./
+      target: builder
+      args:
+        - NODE_ENV=development
+    image: backend:latest
+    container_name: jest_backend
+    env_file:
+      - ./test.env
+    volumes:
+      - .:/usr/src/app
+    ports:
+      - 3000:3000
+      - 9229:9229
+    command: sh scripts/test.sh
+    networks: 
+      - server
+
+  db:
+    image: mongo:latest
+    container_name: backenddb
+    env_file:
+      - ./test.env
+    volumes:
+      - dbdata:/data/db
+    ports:
+      - 27017:27017
+    networks: 
+      - server
+    logging:
+      driver: none
+
+volumes:
+  dbdata:
+
+networks:
+  server:
