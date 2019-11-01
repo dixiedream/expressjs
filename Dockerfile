@@ -40,7 +40,7 @@ FROM base AS unit-tests
 
 WORKDIR /usr/src/app
 COPY --from=builder /usr/src/app/ .
-RUN ["npm", "run", "test"]
+RUN ["npm", "run", "test:prod"]
 
 # Starts and serve API
 FROM base AS serve

@@ -5,7 +5,8 @@
         "start": "nodemon --inspect=127.0.0.1:9229 src/app.js",
         "start:prod": "node src/app.js",
         "lint": "eslint src/**.js",
-        "test": "jest --maxWorkers=1 --watchAll"
+        "test": "jest --maxWorkers=1 --watchAll",
+        "test:prod": "jest"
     },
     "keywords": [
         "nodejs",
