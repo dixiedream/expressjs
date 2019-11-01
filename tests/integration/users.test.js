@@ -56,8 +56,7 @@ describe(endpoint, () => {
 
   describe("GET /me", () => {
     it("should return user data if logged in", async () => {
-      // TODO: has to be registered
-      const { token } = users.register({
+      const { token } = await users.register({
         email: "johndoe@anonymous.com",
         password: "rememberthefifth"
       });

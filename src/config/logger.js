@@ -29,13 +29,18 @@ const logger = createLogger({
       format: format.combine(format.json(), format.metadata())
     })
   ],
-  exceptionHandlers: [new transports.File({ filename: "logs/exceptions.log" })]
+  exceptionHandlers: [
+    /**
+     * - Write occurred exceptions to `exceptions.log`
+     */
+    new transports.File({ filename: "logs/exceptions.log" })
+  ]
 });
 
-//
-// If we're not in production then **ALSO** log to the `console`
-// with the colorized simple format.
-//
+/**
+ * If we're not in production then **ALSO** log to the `console`
+ * with the colorized simple format.
+ */
 if (NODE_ENV !== "production") {
   logger.add(
     new transports.Console({

@@ -39,7 +39,6 @@
     },
     "jest": {
         "testEnvironment": "node",
-        "logHeapUsage": false,
-        "verbose": false
+        "verbose": true
     }
 }

@@ -19,7 +19,7 @@ router.post("/", (req, res) => {
     .catch(error => {
       if (error instanceof APIError) {
         const { type, message } = error;
-        logger.info("AUTHENTICATION_FAILED", { email: req.body.email });
+        logger.info("AUTHENTICATION_FAILED", { email: req.body.email, type });
         res.status(400).send({ type, message });
       }
     });
