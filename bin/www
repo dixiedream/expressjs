@@ -3,12 +3,7 @@
 const app = require("../app");
 const logger = require("../src/config/logger");
 
-// Constants
-const PORT = process.env.PORT || 8080;
-// if you're not using docker-compose for local development, this will default to 8080
-// to prevent non-root permission problems with 80. Dockerfile is set to make this 80
-// because containers don't have that issue :)
-
+const PORT = process.env.PORT || 3000;
 const server = app.listen(PORT, () => {
   logger.info("SERVER_STARTED", { port: PORT });
 });
@@ -55,19 +50,13 @@ function shutdown() {
 
 // quit on ctrl-c when running docker in terminal
 process.on("SIGINT", () => {
-  logger.info(
-    "Got SIGINT (aka ctrl-c in docker). Graceful shutdown ",
-    new Date().toISOString()
-  );
+  logger.info("Got SIGINT (aka ctrl-c in docker). Graceful shutdown");
   shutdown();
 });
 
 // quit properly on docker stop
 process.on("SIGTERM", () => {
-  logger.info(
-    "Got SIGTERM (docker container stop). Graceful shutdown ",
-    new Date().toISOString()
-  );
+  logger.info("Got SIGTERM (docker container stop). Graceful shutdown");
   shutdown();
 });
 
