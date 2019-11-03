@@ -12,7 +12,7 @@ services:
       - ./.env
     volumes:
       #- .:/app # For Linux
-      - .:/app:delegated # Only for MacOsX
+      - .:/app:delegated # Only for Mac
     ports:
       - 3000:3000
       - 9229:9229
@@ -35,10 +35,11 @@ services:
     networks: 
       - server
     healthcheck:
-      test: "mongo --quiet 127.0.0.1/test --eval 'quit(db.runCommand({ ping: 1 }).ok ? 0 : 2)'"
+      test: "[ `echo 'db.runCommand(\"ping\").ok' | mongo localhost/example-database --quiet` ] && echo 0 || echo 1"
       interval: 5s
-      timeout: 5s
-      retries: 12
+      start_period: 10s
+      timeout: 4s
+      retries: 3
     logging:
       driver: none
 

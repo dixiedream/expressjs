@@ -9,6 +9,17 @@
       "request": "attach",
       "name": "Attach",
       "port": 9229
+    },
+    {
+      "name": "Docker Test (Attach 9230 --inspect)",
+      "type": "node",
+      "request": "attach",
+      "protocol": "inspector",
+      "port": 9230,
+      "localRoot": "${workspaceRoot}",
+      "remoteRoot": "/opt/app",
+      "preLaunchTask": "Docker npm run test-wait-debuger", // See ./tasks.json
+      "internalConsoleOptions": "openOnSessionStart"
     }
   ]
 }
