@@ -1,6 +1,6 @@
 {
     "description": "Project description",
-    "main": "src/app.js",
+    "main": "app.js",
     "scripts": {
         "test": "jest --maxWorkers=1 --watchAll --coverage",
         "test:prod": "jest --coverage"
