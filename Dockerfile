@@ -1,51 +1,42 @@
 # Node base image
-FROM node:lts-alpine AS base
-
+FROM node:12-slim AS base
 LABEL mantainer="Alessandro Lucarini <alessandro.lucarini@smanapp.com>"
+ENV NODE_ENV=production
+ENV TINI_VERSION=v0.18.0
+ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini /tini
+RUN chmod +x /tini
+EXPOSE 3000
+RUN mkdir /app && chown -R node:node /app
+WORKDIR /app
+USER node
+COPY --chown=node:node package.json package-lock*.json ./
+RUN npm ci && npm cache clean --force
 
-ENV TIMEZONE=Europe/Rome
+FROM base AS dev
+ENV NODE_ENV=development
+ENV PATH=/app/node_modules/.bin:$PATH
+RUN npm install --only=development
+CMD [ "nodemon", "./bin/www", "--inspect=127.0.0.1:9229" ]
 
-# Node environment vars
-ENV TZ=${TIMEZONE}
+FROM base AS source
+COPY --chown=node:node . .
 
-RUN apk --no-cache add --update tzdata \
-    && cp /usr/share/zoneinfo/${TIMEZONE} /etc/localtime \
-    && apk del tzdata \
-    && rm -rf /var/cache/apk/*
+FROM source AS test
+ENV NODE_ENV=development
+ENV PATH=/app/node_modules/.bin:$PATH
+COPY --from=dev /app/node_modules /app/node_modules
+RUN eslint .
+RUN npm test
+CMD [ "npm", "run", "test" ]
 
-# Copies in our code and runs NPM Install
-FROM base AS builder
+FROM test AS audit
+USER root
+RUN npm audit --audit-level critical
+ARG MICROSCANNER_TOKEN
+ADD https://get.aquasec.com/microscanner /
+RUN chmod +x /microscanner
+RUN /microscanner ${MICROSCANNER_TOKEN} --continue-on-failure
 
-ARG NODE_ENV=production
-ENV NODE_ENV=${NODE_ENV}
-
-RUN apk --no-cache add --virtual builds-deps build-base python \
-    && rm -rf /var/cache/apk/*
-
-WORKDIR /usr/src/app
-COPY package*.json ./
-COPY . .
-
-RUN ["npm", "install", "--quiet"]
-
-# Lints code
-FROM base AS linting
-
-WORKDIR /usr/src/app
-COPY --from=builder /usr/src/app .
-RUN ["npm", "run", "lint"]
-
-# Runs Unit Tests
-FROM base AS unit-tests
-
-WORKDIR /usr/src/app
-COPY --from=builder /usr/src/app/ .
-RUN ["npm", "run", "test:prod"]
-
-# Starts and serve API
-FROM base AS serve
-
-WORKDIR /usr/src/app
-COPY --from=builder /usr/src/app/ ./
-COPY --from=builder /usr/src/app/package* ./
-CMD ["npm", "run", "start:prod"]
+FROM source AS prod
+ENTRYPOINT [ "/tini", "--" ]
+CMD [ "node", "./bin/www" ]

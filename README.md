@@ -32,6 +32,8 @@ Follow [Airbnb style guide](https://github.com/airbnb/javascript). [ESLint](http
 
 To connect with a GUI to the dev mongo db instance us [MongoDb Compass](https://www.mongodb.com/download-center/compass)
 
+## ToDo
+- Better dealing with Node.js shutdown using [Connection tracking](https://github.com/hunterloftis/stoppable)
 
 ## Contributing
 

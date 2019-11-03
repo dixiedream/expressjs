@@ -1,12 +1,12 @@
-version: '3.7'
+version: "3.7"
 services:
   server:
     build:
       context: ./
     image: backend:lts
     container_name: backend
-    environment:
-      - MONGO_CONNECTION=yourAtlasDbConnectionstring
+    env_file:
+      - ./.env
     volumes:
       - backendModules:/usr/src/app/node_modules
     ports:
@@ -17,12 +17,12 @@ services:
       replicas: 1
       resources:
         limits:
-          cpus: '0.1'
+          cpus: "0.1"
           memory: 300M
       restart_policy:
         condition: on-failure
     healthcheck:
-      test: ['CMD', 'curl', '-f', 'http://localhost']
+      test: ["CMD", "curl", "-f", "https://localhost:3000"]
       interval: 1m30s
       timeout: 10s
       retries: 3

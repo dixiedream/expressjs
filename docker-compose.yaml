@@ -1,23 +1,25 @@
 # Use only for development
-version: "3.7"
+version: "2.4"
 
 services:
   backend:
     build:
       context: ./
-      target: builder
-      args:
-        - NODE_ENV=development
+      target: dev
     image: backend:latest
     container_name: backend
     env_file:
       - ./.env
     volumes:
-      - .:/usr/src/app
+      #- .:/app # For Linux
+      - .:/app:delegated # Only for MacOsX
     ports:
       - 3000:3000
       - 9229:9229
-    command: sh scripts/dev.sh
+    #command: sh scripts/dev.sh
+    depends_on:
+      db:
+        condition: service_healthy
     networks: 
       - server
 
@@ -32,6 +34,13 @@ services:
       - 27017:27017
     networks: 
       - server
+    healthcheck:
+      test: "mongo --quiet 127.0.0.1/test --eval 'quit(db.runCommand({ ping: 1 }).ok ? 0 : 2)'"
+      interval: 5s
+      timeout: 5s
+      retries: 12
+    logging:
+      driver: none
 
 volumes:
   dbdata:

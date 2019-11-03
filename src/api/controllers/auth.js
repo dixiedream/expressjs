@@ -1,5 +1,5 @@
 const Joi = require("@hapi/joi");
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 const { User } = require("../models/User");
 const AuthenticationFailedError = require("../../shared/errors/AuthenticationError/AuthenticationFailedError");
 const InvalidDataError = require("../../shared/errors/InvalidDataError");

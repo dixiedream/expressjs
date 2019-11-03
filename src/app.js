@@ -5,6 +5,11 @@ const logger = require("./config/logger");
 require("./api/routes/index")(app);
 require("./config/db")();
 
+if (process.env.NODE_ENV === "production") {
+  // eslint-disable-next-line global-require
+  require("./config/prod")(app);
+}
+
 const port = process.env.PORT || 3000;
 
 // Start server

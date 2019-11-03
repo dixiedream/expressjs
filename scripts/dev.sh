@@ -9,4 +9,5 @@ else
 fi
 
 echo "Starting nodemon..."
-exec npm run start
+#exec npm run start
+exec nodemon ./bin/www --inspect=127.0.0.1:9229

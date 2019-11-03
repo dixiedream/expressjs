@@ -1,12 +1,9 @@
 {
     "description": "Project description",
-    "main": "app.js",
+    "main": "src/app.js",
     "scripts": {
-        "start": "nodemon --inspect=127.0.0.1:9229 src/app.js",
-        "start:prod": "node src/app.js",
-        "lint": "eslint src/**.js",
-        "test": "jest --maxWorkers=1 --watchAll",
-        "test:prod": "jest"
+        "test": "jest --maxWorkers=1 --watchAll --coverage",
+        "test:prod": "jest --coverage"
     },
     "keywords": [
         "nodejs",
@@ -17,9 +14,11 @@
     "license": "ISC",
     "dependencies": {
         "@hapi/joi": "^16.1.7",
-        "bcrypt": "^3.0.6",
+        "bcryptjs": "^2.4.3",
+        "compression": "^1.7.4",
         "express": "^4.17.1",
         "express-async-errors": "^3.1.1",
+        "helmet": "^3.21.2",
         "jsonwebtoken": "^8.5.1",
         "mongoose": "^5.7.1",
         "swagger-express-mw": "^0.7.0",
