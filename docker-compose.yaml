@@ -16,15 +16,12 @@ services:
     ports:
       - 3000:3000
       - 9229:9229
-    #command: sh scripts/dev.sh
     depends_on:
       db:
         condition: service_healthy
-    networks: 
-      - server
 
   db:
-    image: mongo:latest
+    image: mongo:4
     container_name: backenddb
     env_file:
       - ./.env
@@ -32,8 +29,6 @@ services:
       - dbdata:/data/db
     ports:
       - 27017:27017
-    networks: 
-      - server
     healthcheck:
       test: "[ `echo 'db.runCommand(\"ping\").ok' | mongo localhost/example-database --quiet` ] && echo 0 || echo 1"
       interval: 5s
@@ -45,6 +40,3 @@ services:
 
 volumes:
   dbdata:
-
-networks:
-  server:
