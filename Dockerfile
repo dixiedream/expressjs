@@ -27,7 +27,7 @@ ENV PATH=/app/node_modules/.bin:$PATH
 
 RUN npm install --only=development
 
-CMD [ "nodemon", "./bin/www", "--inspect=127.0.0.1:9229" ]
+CMD [ "nodemon", "./bin/www", "--inspect=0.0.0.0:9229" ]
 
 # Source code
 FROM base AS source

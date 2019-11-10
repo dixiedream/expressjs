@@ -11,7 +11,7 @@
       "port": 9229,
       "remoteRoot": "/app",
       "restart": true
-    },
+    }
     /*
     {
       "name": "Docker Test (Attach 9230 --inspect)",
