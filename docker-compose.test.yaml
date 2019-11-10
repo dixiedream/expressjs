@@ -2,15 +2,16 @@
 version: "2.4"
 
 services:
-  # The epxress backend service
   backend:
     build:
       context: ./
-      target: dev
-    image: backend:latest
-    container_name: backend
-    env_file:
-      - ./.env
+      target: test
+    image: backendtest:latest
+    #command: npm run test:dev # Use this when you want to watch for changes
+    environment:
+      - JWT_PRIVATE_KEY=testSecret
+      - JWT_ISSUER=https://your.issuer.com
+      - MONGO_CONNECTION=mongodb://db:27017/expressmongo_tests
     volumes:
       #- .:/app # For Linux
       - .:/app:delegated # Only for Mac
@@ -21,12 +22,8 @@ services:
       db:
         condition: service_healthy
 
-  # The local mongodb service
   db:
     image: mongo:4
-    container_name: backenddb
-    env_file:
-      - ./.env
     volumes:
       - dbdata:/data/db
     ports:
@@ -37,18 +34,19 @@ services:
       start_period: 10s
       timeout: 4s
       retries: 3
+    logging:
+      driver: none
 
-  # Takes js file in the seeds folder for creating the initial state of the app
   seeder:
     image: pkosiec/mongo-seeding:3.3.0
     volumes:
       - ./seeds:/data
-    env_file:
-      - ./.env
+    environment:
+      - DB_URI=mongodb://db:27017/expressmongo_tests
+      - DROP_DATABASE=true
     depends_on:
       db:
         condition: service_healthy
 
 volumes:
-  # Mongo db named volume
   dbdata:

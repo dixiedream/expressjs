@@ -9,7 +9,7 @@ const APIError = require("../../shared/errors/APIError");
 const logger = require("../../config/logger");
 
 router.post("/", (req, res) => {
-  logger.info("AUTHENTICATION_REQUESTED", { email: req.body.email });
+  logger.info("AUTHENTICATION_REQUEST", { email: req.body.email });
   auth
     .authenticate(req.body)
     .then(token => {
@@ -21,6 +21,9 @@ router.post("/", (req, res) => {
         const { type, message } = error;
         logger.info("AUTHENTICATION_FAILED", { email: req.body.email, type });
         res.status(400).send({ type, message });
+      } else {
+        logger.error("AUTHENTICATION_FAILED", error);
+        res.status(500).send();
       }
     });
 });

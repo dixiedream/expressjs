@@ -71,3 +71,5 @@ server.on("connection", socket => {
     delete sockets[socketId];
   });
 });
+
+module.exports = server;

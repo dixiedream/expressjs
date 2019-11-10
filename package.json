@@ -1,9 +1,12 @@
 {
     "description": "Project description",
+    "version": "0.0.0",
+    "private": true,
     "main": "app.js",
     "scripts": {
-        "test": "jest --maxWorkers=1 --watchAll --coverage",
-        "test:prod": "jest --coverage"
+        "test:dev": "jest --maxWorkers=1 --watchAll --coverage",
+        "test:integration": "jest ./tests/integration/* --detectOpenHandles",
+        "test:unit": "jest ./tests/unit/*"
     },
     "keywords": [
         "nodejs",
@@ -23,8 +26,7 @@
         "mongoose": "^5.7.1",
         "swagger-express-mw": "^0.7.0",
         "swagger-ui-express": "^4.1.0",
-        "winston": "^3.2.1",
-        "winston-mongodb": "^5.0.0"
+        "winston": "^3.2.1"
     },
     "devDependencies": {
         "eslint": "^5",

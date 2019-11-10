@@ -5,7 +5,8 @@ const AuthenticationFailedError = require("../../shared/errors/AuthenticationErr
 const InvalidDataError = require("../../shared/errors/InvalidDataError");
 
 /**
- * Validates login data
+ * Validates login data, it's different from the user validate functions
+ * because you may want to pass different data
  */
 function validate(body) {
   const joiModel = Joi.object({

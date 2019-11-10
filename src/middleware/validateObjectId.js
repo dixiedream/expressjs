@@ -1,8 +1,12 @@
 const mongoose = require("mongoose");
-const { type, message } = require("../shared/errors/NotFoundError")(
-  "Invalid ID."
-);
 
+const NotFoundError = require("../shared/errors/NotFoundError");
+
+const { type, message } = new NotFoundError("Invalid ID.");
+
+/**
+ * Checks if id in URL is a valid mongoDB objectId
+ */
 module.exports = (req, res, next) => {
   if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
     return res.status(404).send({ type, message });
