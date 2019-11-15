@@ -24,7 +24,7 @@ RUN npm config list
 RUN npm install --only=development \
   && npm cache clean --force
 USER node
-CMD [ "nodemon", "./bin/www", "--inspect=0.0.0.0:9229" ]
+CMD [ "nodemon", "--inspect=0.0.0.0", "./bin/www" ]
 
 # Source code
 FROM base AS source
