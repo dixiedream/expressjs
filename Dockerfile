@@ -1,7 +1,7 @@
 # Node base image
 FROM node:12-alpine AS base
 LABEL org.opencontainers.image.authors=alessandro.lucarini@smanapp.com
-LABEL org.opencontainers.image.title="SmanApp drive API"
+LABEL org.opencontainers.image.title="Express boilerplate"
 LABEL org.opencontainers.image.licenses=MIT
 EXPOSE 3000
 ENV NODE_ENV=production
