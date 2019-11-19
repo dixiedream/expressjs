@@ -39,10 +39,11 @@ const auth = async (req, res, next) => {
     ) {
       res.status(401).send({ type: error.type, message: error.message });
     } else if (error instanceof APIError) {
-      res.status(400).send({ type: error.type, message: error.message });
+      res.status(401).send({ type: error.type, message: error.message });
     } else {
+      logger.error("AUTHORIZATION_UNKNOWN_ERROR", error);
       const err = new InvalidTokenError();
-      res.status(400).send({ type: err.type, message: err.message });
+      res.status(401).send({ type: err.type, message: err.message });
     }
   }
 };

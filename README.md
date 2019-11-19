@@ -15,11 +15,6 @@ tests/ # tests for controllers, models, other logical units - within properly re
 
 Follow [Airbnb style guide](https://github.com/airbnb/javascript). [ESLint](http://eslint.org/) together with [Airbnb base config](https://www.npmjs.com/package/eslint-config-airbnb-base) is set-up to lint your code.
 
-## Useful links
-
-- Use [Swagger editor](editor.swagger.io) for defining new routes.
-- Documentation for [OpenAPI specs](https://swagger.io/specification)
-
 ## Setup
 
 - Install [VSCode](https://code.visualstudio.com/) IDE
@@ -28,6 +23,7 @@ Follow [Airbnb style guide](https://github.com/airbnb/javascript). [ESLint](http
 - Create your own `.env` file based on `default.env`
 - Run `docker-compose up`
 - For development it'll be necessary to run `docker-compose run backend npm i` for installing dependencies on host machine after the initial build failed.
+- For debugging use the handy [Chrome DevTools](https://chromedevtools.github.io/devtools-protocol/)
 
 ## Extra
 

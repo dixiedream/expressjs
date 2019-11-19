@@ -1,8 +1,10 @@
 const { createLogger, format, transports } = require("winston");
 require("express-async-errors");
 
+const level = process.env.NODE_ENV === "production" ? "info" : "debug";
+
 const logger = createLogger({
-  level: "info",
+  level,
   format: format.combine(
     format.timestamp({
       format: "YYYY-MM-DD HH:mm:ss"

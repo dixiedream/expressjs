@@ -4,8 +4,8 @@
     "private": true,
     "main": "app.js",
     "scripts": {
-        "test:dev": "jest --maxWorkers=1 --watchAll --coverage",
-        "test:integration": "jest ./tests/integration/* --detectOpenHandles",
+        "test:dev": "jest ./tests/* --runInBand --watchAll --coverage",
+        "test:integration": "jest ./tests/integration/* --runInBand --coverage",
         "test:unit": "jest ./tests/unit/*"
     },
     "keywords": [
@@ -24,8 +24,6 @@
         "helmet": "^3.21.2",
         "jsonwebtoken": "^8.5.1",
         "mongoose": "^5.7.1",
-        "swagger-express-mw": "^0.7.0",
-        "swagger-ui-express": "^4.1.0",
         "winston": "^3.2.1"
     },
     "devDependencies": {

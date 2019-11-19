@@ -1,16 +1,17 @@
 const request = require("supertest");
+const mongoose = require("mongoose");
 const { User } = require("../../src/api/models/User");
+const server = require("../../app");
 
-let server;
+const endpoint = "/api/auth";
 
-describe("/api/auth", () => {
-  beforeEach(() => {
-    // eslint-disable-next-line global-require
-    server = require("../../app");
-  });
+describe(endpoint, () => {
   afterEach(async () => {
-    server.close();
     await User.deleteMany({});
+  });
+
+  afterAll(async () => {
+    await mongoose.disconnect();
   });
 
   describe("POST /", () => {
@@ -55,6 +56,7 @@ describe("/api/auth", () => {
 
     it("should return 400 if invalid data", async () => {
       email = "abc.com";
+      password = undefined;
 
       const res = await exec();
       expect(res.status).toBe(400);

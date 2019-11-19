@@ -1,21 +1,24 @@
 # Node base image
 FROM node:12-alpine AS base
 LABEL org.opencontainers.image.authors=alessandro.lucarini@smanapp.com
-LABEL org.opencontainers.image.title="Express boilerplate"
+LABEL org.opencontainers.image.title="ExpressJs boilerplate"
 LABEL org.opencontainers.image.licenses=MIT
 EXPOSE 3000
+ENV TZ=Europe/Rome
 ENV NODE_ENV=production
 ENV PORT 3000
-ENV PATH=/app/node_modules/.bin:$PATH
-ENV TINI_VERSION=v0.18.0
-ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini /tini
-RUN chmod +x /tini
-RUN mkdir /app && chown -R node:node /app
+RUN apk add --no-cache tini tzdata && \
+  cp /usr/share/zoneinfo/${TZ} /etc/localtime && \
+  echo "${TZ}" >  /etc/timezone && \
+  apk del tzdata
 WORKDIR /app
-USER node
-COPY --chown=node:node package.json package-lock.json* ./
+COPY package.json package-lock.json* ./
 RUN npm config list
-RUN npm ci && npm cache clean --force
+RUN npm ci && \
+  npm cache clean --force
+ENV PATH=/app/node_modules/.bin:$PATH
+ENTRYPOINT [ "/sbin/tini", "--" ]
+CMD [ "node", "./bin/www" ]
 
 # Image for development
 FROM base AS dev
@@ -24,18 +27,14 @@ RUN npm config list
 RUN npm install --only=development \
   && npm cache clean --force
 USER node
-CMD [ "nodemon", "--inspect=0.0.0.0", "./bin/www" ]
-
-# Source code
-FROM base AS source
-COPY --chown=node:node . .
+CMD [ "nodemon", "--inspect=0.0.0.0", "./bin/www"]
 
 # Testing image
-FROM source AS test
+FROM dev AS test
 ENV NODE_ENV=development
 ENV JWT_PRIVATE_KEY=notSoSecretPassword
 ENV JWT_ISSUER=https://dummy.issuer.com
-COPY --from=dev /app/node_modules /app/node_modules
+COPY . .
 RUN eslint .
 RUN npm run test:unit
 # To run with docker-compose
@@ -51,10 +50,14 @@ RUN chmod +x /microscanner
 RUN apk add --no-cache ca-certificates && update-ca-certificates
 RUN /microscanner ${MICROSCANNER_TOKEN} --continue-on-failure
 
+# Cleaning image before production
+FROM test AS pre-prod
+USER root
+RUN rm -rf ./tests && \
+  rm -rf ./node_modules
+
 # Production image
-FROM source AS prod
-RUN rm -rf ./tests
-ENTRYPOINT [ "/tini", "--" ]
+FROM base AS prod
+COPY --from=pre-prod /app /app
 HEALTHCHECK --interval=30s CMD node hc.js
 USER node
-CMD [ "node", "./bin/www" ]

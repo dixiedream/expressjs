@@ -1,19 +1,18 @@
 const request = require("supertest");
+const mongoose = require("mongoose");
 const { User } = require("../../src/api/models/User");
-const users = require("../../src/api/controllers/users");
 
-let server;
+const server = require("../../app");
 
 const endpoint = "/api/users";
 
 describe(endpoint, () => {
-  beforeEach(() => {
-    // eslint-disable-next-line global-require
-    server = require("../../app");
-  });
   afterEach(async () => {
-    server.close();
     await User.deleteMany({});
+  });
+
+  afterAll(async () => {
+    await mongoose.disconnect();
   });
 
   describe("POST /", () => {
@@ -43,11 +42,14 @@ describe(endpoint, () => {
 
     it("should not register the user if invalid email", async () => {
       email = "johndoe";
+      password = undefined;
       const res = await exec();
       expect(res.status).toBe(400);
     });
 
     it("should not register the user if empty body", async () => {
+      email = undefined;
+      password = undefined;
       const res = await request(server).post(endpoint);
 
       expect(res.status).toBe(400);
@@ -55,11 +57,13 @@ describe(endpoint, () => {
   });
 
   describe("GET /me", () => {
-    it("should return user data if logged in", async () => {
-      const { token } = await users.register({
+    it("should return 200 if logged in", async () => {
+      const user = await new User({
         email: "johndoe@anonymous.com",
         password: "rememberthefifth"
-      });
+      }).save();
+
+      const token = user.generateAuthToken();
 
       const res = await request(server)
         .get(`${endpoint}/me`)

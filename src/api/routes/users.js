@@ -4,10 +4,16 @@ const users = require("../controllers/users");
 const APIError = require("../../shared/errors/APIError");
 const logger = require("../../config/logger");
 
+/**
+ * Get user data
+ */
 router.get("/me", auth, (req, res) => {
-  res.status(200).send("User data");
+  res.status(200).send({ user: req.user });
 });
 
+/**
+ * Register a new user
+ */
 router.post("/", (req, res) => {
   logger.info(`CREATE_USER_REQUEST`, { email: req.body.email });
   users

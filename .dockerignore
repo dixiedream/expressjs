@@ -1,6 +1,5 @@
 node_modules
 npm-debug.log
-Dockerfile*
 docker-compose*
 .dockerignore
 .git
@@ -8,4 +7,6 @@ docker-compose*
 README.md
 LICENSE
 .vscode
+coverage
+*.env
 seeds

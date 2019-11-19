@@ -8,6 +8,9 @@ const auth = require("../controllers/auth");
 const APIError = require("../../shared/errors/APIError");
 const logger = require("../../config/logger");
 
+/**
+ * Login the user
+ */
 router.post("/", (req, res) => {
   logger.info("AUTHENTICATION_REQUEST", { email: req.body.email });
   auth

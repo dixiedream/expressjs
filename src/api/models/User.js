@@ -11,19 +11,22 @@ const mongoose = require("mongoose");
 const { JWT_PRIVATE_KEY, JWT_ISSUER } = process.env;
 const { Schema } = mongoose;
 
-const User = new Schema({
-  email: {
-    type: String,
-    unique: true,
-    required: true
+const UserSchema = new Schema(
+  {
+    email: {
+      type: String,
+      unique: true,
+      required: true
+    },
+    password: {
+      type: String,
+      required: true
+    }
   },
-  password: {
-    type: String,
-    required: true
-  }
-});
+  { timestamps: true }
+);
 
-User.pre("save", async function hashPassword(next) {
+UserSchema.pre("save", async function hashPassword(next) {
   const user = this;
   if (user.isModified("password")) {
     const salt = await bcrypt.genSalt(10);
@@ -33,7 +36,7 @@ User.pre("save", async function hashPassword(next) {
   next();
 });
 
-User.methods.generateAuthToken = function generateAuthToken() {
+UserSchema.methods.generateAuthToken = function generateAuthToken() {
   const token = jwt.sign(
     {
       _id: this._id,
@@ -41,14 +44,14 @@ User.methods.generateAuthToken = function generateAuthToken() {
     },
     JWT_PRIVATE_KEY,
     {
-      expiresIn: "7d",
+      expiresIn: "30d",
       issuer: JWT_ISSUER
     }
   );
   return token;
 };
 
-exports.User = mongoose.model("User", User);
+exports.User = mongoose.model("User", UserSchema);
 exports.validate = user => {
   const joiModel = Joi.object({
     email: Joi.string()
