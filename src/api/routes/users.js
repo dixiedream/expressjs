@@ -9,21 +9,21 @@ router.get("/me", auth, (req, res) => {
 });
 
 router.post("/", (req, res) => {
-  logger.info(`CREATE_USER_REQUESTED`, { email: req.body.email });
+  logger.info(`CREATE_USER_REQUEST`, { email: req.body.email });
   users
     .register(req.body)
     .then(({ token, email }) => {
-      logger.info("USER_CREATED", { email });
-      res
-        .header("Authorization", `Bearer ${token}`)
-        .status(201)
-        .send({ email });
+      logger.info("CREATE_USER_SUCCEDED", { email });
+      res.status(201).send({ email, token });
     })
     .catch(error => {
       if (error instanceof APIError) {
         const { type, message } = error;
         logger.info("CREATE_USER_FAILED", { type, email: req.body.email });
         res.status(400).send({ type, message });
+      } else {
+        logger.error("CREATE_USER_FAILED", error);
+        res.status(500).send();
       }
     });
 });

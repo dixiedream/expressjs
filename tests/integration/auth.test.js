@@ -6,7 +6,7 @@ let server;
 describe("/api/auth", () => {
   beforeEach(() => {
     // eslint-disable-next-line global-require
-    server = require("../../src/app");
+    server = require("../../app");
   });
   afterEach(async () => {
     server.close();

@@ -1,43 +1,52 @@
-# Use only for tests development
-version: "3.7"
+# Use only for development
+version: "2.4"
 
 services:
   backend:
-    tty: true
     build:
       context: ./
-      target: builder
-      args:
-        - NODE_ENV=development
-    image: backend:latest
-    container_name: jest_backend
-    env_file:
-      - ./test.env
+      target: test
+    image: backendtest:latest
+    #command: npm run test:dev # Use this when you want to watch for changes
+    environment:
+      - JWT_PRIVATE_KEY=testSecret
+      - JWT_ISSUER=https://your.issuer.com
+      - MONGO_CONNECTION=mongodb://db:27017/expressmongo_tests
     volumes:
-      - .:/usr/src/app
+      #- .:/app # For Linux
+      - .:/app:delegated # Only for Mac
     ports:
       - 3000:3000
       - 9229:9229
-    command: sh scripts/test.sh
-    networks: 
-      - server
+    depends_on:
+      db:
+        condition: service_healthy
 
   db:
-    image: mongo:latest
-    container_name: backenddb
-    env_file:
-      - ./test.env
+    image: mongo:4
     volumes:
       - dbdata:/data/db
     ports:
       - 27017:27017
-    networks: 
-      - server
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongo localhost:27017/test --quiet
+      interval: 5s
+      start_period: 10s
+      timeout: 4s
+      retries: 3
     logging:
       driver: none
 
+  seeder:
+    image: pkosiec/mongo-seeding:3.3.0
+    volumes:
+      - ./seeds:/data
+    environment:
+      - DB_URI=mongodb://db:27017/expressmongo_tests
+      - DROP_DATABASE=true
+    depends_on:
+      db:
+        condition: service_healthy
+
 volumes:
   dbdata:
-
-networks:
-  server:

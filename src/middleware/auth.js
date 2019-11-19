@@ -30,7 +30,8 @@ const auth = async (req, res, next) => {
     next();
   } catch (error) {
     logger.info("AUTHORIZATION_FAILED", {
-      type: error.type
+      errorName: error.name,
+      errorMessage: error.message
     });
     if (
       error instanceof NotAuthorizedError ||

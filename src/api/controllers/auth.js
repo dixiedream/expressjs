@@ -1,11 +1,12 @@
 const Joi = require("@hapi/joi");
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 const { User } = require("../models/User");
 const AuthenticationFailedError = require("../../shared/errors/AuthenticationError/AuthenticationFailedError");
 const InvalidDataError = require("../../shared/errors/InvalidDataError");
 
 /**
- * Validates login data
+ * Validates login data, it's different from the user validate functions
+ * because you may want to pass different data
  */
 function validate(body) {
   const joiModel = Joi.object({

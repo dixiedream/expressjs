@@ -18,7 +18,7 @@ Follow [Airbnb style guide](https://github.com/airbnb/javascript). [ESLint](http
 ## Useful links
 
 - Use [Swagger editor](editor.swagger.io) for defining new routes.
-- Documentation for [OpenAPI specs](https://swagger.io/specification/v2/)
+- Documentation for [OpenAPI specs](https://swagger.io/specification)
 
 ## Setup
 
@@ -27,11 +27,14 @@ Follow [Airbnb style guide](https://github.com/airbnb/javascript). [ESLint](http
 - Install [Docker](https://docs.docker.com/install/)
 - Create your own `.env` file based on `default.env`
 - Run `docker-compose up`
+- For development it'll be necessary to run `docker-compose run backend npm i` for installing dependencies on host machine after the initial build failed.
 
 ## Extra
 
 To connect with a GUI to the dev mongo db instance us [MongoDb Compass](https://www.mongodb.com/download-center/compass)
 
+## ToDo
+- Better dealing with Node.js shutdown using [Connection tracking](https://github.com/hunterloftis/stoppable)
 
 ## Contributing
 

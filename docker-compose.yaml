@@ -1,28 +1,29 @@
 # Use only for development
-version: "3.7"
+version: "2.4"
 
 services:
+  # The epxress backend service
   backend:
     build:
       context: ./
-      target: builder
-      args:
-        - NODE_ENV=development
+      target: dev
     image: backend:latest
     container_name: backend
     env_file:
       - ./.env
     volumes:
-      - .:/usr/src/app
+      #- .:/app # For Linux
+      - .:/app:delegated # Only for Mac
     ports:
       - 3000:3000
       - 9229:9229
-    command: sh scripts/dev.sh
-    networks: 
-      - server
+    depends_on:
+      db:
+        condition: service_healthy
 
+  # The local mongodb service
   db:
-    image: mongo:latest
+    image: mongo:4
     container_name: backenddb
     env_file:
       - ./.env
@@ -30,11 +31,24 @@ services:
       - dbdata:/data/db
     ports:
       - 27017:27017
-    networks: 
-      - server
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongo localhost:27017/test --quiet
+      interval: 5s
+      start_period: 10s
+      timeout: 4s
+      retries: 3
+
+  # Takes js file in the seeds folder for creating the initial state of the app
+  seeder:
+    image: pkosiec/mongo-seeding:3.3.0
+    volumes:
+      - ./seeds:/data
+    env_file:
+      - ./.env
+    depends_on:
+      db:
+        condition: service_healthy
 
 volumes:
+  # Mongo db named volume
   dbdata:
-
-networks:
-  server:

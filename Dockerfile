@@ -1,51 +1,60 @@
 # Node base image
-FROM node:lts-alpine AS base
+FROM node:12-alpine AS base
+LABEL org.opencontainers.image.authors=alessandro.lucarini@smanapp.com
+LABEL org.opencontainers.image.title="Express boilerplate"
+LABEL org.opencontainers.image.licenses=MIT
+EXPOSE 3000
+ENV NODE_ENV=production
+ENV PORT 3000
+ENV PATH=/app/node_modules/.bin:$PATH
+ENV TINI_VERSION=v0.18.0
+ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini /tini
+RUN chmod +x /tini
+RUN mkdir /app && chown -R node:node /app
+WORKDIR /app
+USER node
+COPY --chown=node:node package.json package-lock.json* ./
+RUN npm config list
+RUN npm ci && npm cache clean --force
 
-LABEL mantainer="Alessandro Lucarini <alessandro.lucarini@smanapp.com>"
+# Image for development
+FROM base AS dev
+ENV NODE_ENV=development
+RUN npm config list
+RUN npm install --only=development \
+  && npm cache clean --force
+USER node
+CMD [ "nodemon", "--inspect=0.0.0.0", "./bin/www" ]
 
-ENV TIMEZONE=Europe/Rome
+# Source code
+FROM base AS source
+COPY --chown=node:node . .
 
-# Node environment vars
-ENV TZ=${TIMEZONE}
+# Testing image
+FROM source AS test
+ENV NODE_ENV=development
+ENV JWT_PRIVATE_KEY=notSoSecretPassword
+ENV JWT_ISSUER=https://dummy.issuer.com
+COPY --from=dev /app/node_modules /app/node_modules
+RUN eslint .
+RUN npm run test:unit
+# To run with docker-compose
+CMD [ "npm", "run", "test:integration" ] 
 
-RUN apk --no-cache add --update tzdata \
-    && cp /usr/share/zoneinfo/${TIMEZONE} /etc/localtime \
-    && apk del tzdata \
-    && rm -rf /var/cache/apk/*
+# Audit image
+FROM test AS audit
+USER root
+RUN npm audit --audit-level critical
+ARG MICROSCANNER_TOKEN
+ADD https://get.aquasec.com/microscanner /
+RUN chmod +x /microscanner
+RUN apk add --no-cache ca-certificates && update-ca-certificates
+RUN /microscanner ${MICROSCANNER_TOKEN} --continue-on-failure
 
-# Copies in our code and runs NPM Install
-FROM base AS builder
-
-ARG NODE_ENV=production
-ENV NODE_ENV=${NODE_ENV}
-
-RUN apk --no-cache add --virtual builds-deps build-base python \
-    && rm -rf /var/cache/apk/*
-
-WORKDIR /usr/src/app
-COPY package*.json ./
-COPY . .
-
-RUN ["npm", "install", "--quiet"]
-
-# Lints code
-FROM base AS linting
-
-WORKDIR /usr/src/app
-COPY --from=builder /usr/src/app .
-RUN ["npm", "run", "lint"]
-
-# Runs Unit Tests
-FROM base AS unit-tests
-
-WORKDIR /usr/src/app
-COPY --from=builder /usr/src/app/ .
-RUN ["npm", "run", "test:prod"]
-
-# Starts and serve API
-FROM base AS serve
-
-WORKDIR /usr/src/app
-COPY --from=builder /usr/src/app/ ./
-COPY --from=builder /usr/src/app/package* ./
-CMD ["npm", "run", "start:prod"]
+# Production image
+FROM source AS prod
+RUN rm -rf ./tests
+ENTRYPOINT [ "/tini", "--" ]
+HEALTHCHECK --interval=30s CMD node hc.js
+USER node
+CMD [ "node", "./bin/www" ]
