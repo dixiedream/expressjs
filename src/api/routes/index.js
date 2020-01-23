@@ -1,7 +1,7 @@
 const express = require("express");
 const router = require("express").Router();
-const logger = require("../../config/logger");
 const error = require("../../middleware/error");
+const profiler = require("../../middleware/profiler");
 
 /**
  * Your routes loading goes here
@@ -13,13 +13,15 @@ const users = require("./users");
 
 module.exports = app => {
   //  Middlewares
-  app.use(express.json());
+  if (process.env.NODE_ENV === "development") {
+    app.use(profiler);
+  }
+  app.use(express.json({ limit: "1mb" })); // Change limit body size
 
   /**
    * Healthcheck route
    */
   router.get("/healthz", (req, res) => {
-    logger.info(`In handler ${req.path}`);
     res.status(200).send("I'm happy and healthy\n");
   });
 

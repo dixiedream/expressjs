@@ -7,7 +7,6 @@ services:
     build:
       context: ./
       target: dev
-    image: backend:latest
     env_file:
       - ./.env
     volumes:
@@ -30,11 +29,13 @@ services:
     ports:
       - 27017:27017
     healthcheck:
-      test: echo 'db.runCommand("ping").ok' | mongo localhost:27017/test --quiet
+      test: '[ `echo ''db.runCommand("ping").ok'' | mongo localhost/${MONGO_DATABASE_NAME} --quiet` ] && echo 0 || echo 1'
       interval: 5s
       start_period: 10s
       timeout: 4s
       retries: 3
+    logging: # Remove this two lines in order to enable db logs
+      driver: none
 
   # Takes js file in the seeds folder for creating the initial state of the app
   seeder:
@@ -43,6 +44,10 @@ services:
       - ./seeds:/data
     env_file:
       - ./.env
+    environment:
+      - DB_URI=mongodb://db/${MONGO_DATABASE_NAME}
+      - DROP_DATABASE=false
+      - DROP_COLLECTIONS=true
     depends_on:
       db:
         condition: service_healthy

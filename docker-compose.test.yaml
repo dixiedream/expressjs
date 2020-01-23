@@ -6,8 +6,7 @@ services:
     build:
       context: ./
       target: test
-    image: backendtest:latest
-    #command: npm run test:dev # Use this when you want to watch for changes
+    command: npm run test:dev
     environment:
       - JWT_PRIVATE_KEY=testSecret
       - JWT_ISSUER=https://your.issuer.com
@@ -15,38 +14,18 @@ services:
     volumes:
       #- .:/app # For Linux
       - .:/app:delegated # Only for Mac
-    ports:
-      - 3000:3000
-      - 9229:9229
+    user: node
     depends_on:
       db:
         condition: service_healthy
 
   db:
     image: mongo:4
-    volumes:
-      - dbdata:/data/db
-    ports:
-      - 27017:27017
     healthcheck:
-      test: echo 'db.runCommand("ping").ok' | mongo localhost:27017/expressmongo_tests --quiet
+      test: echo 'db.runCommand("ping").ok' | mongo localhost:27017/driveAPI_tests --quiet
       interval: 5s
       start_period: 10s
       timeout: 4s
       retries: 3
     logging:
       driver: none
-
-  seeder:
-    image: pkosiec/mongo-seeding:3.3.0
-    volumes:
-      - ./seeds:/data
-    environment:
-      - DB_URI=mongodb://db:27017/expressmongo_tests
-      - DROP_DATABASE=true
-    depends_on:
-      db:
-        condition: service_healthy
-
-volumes:
-  dbdata:
