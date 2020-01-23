@@ -31,4 +31,50 @@ router.post("/", (req, res) => {
     });
 });
 
+/**
+ * Forgot password
+ */
+router.post("/forgotPassword", (req, res) => {
+  logger.info("FORGOT_PASSWORD_REQUEST", { body: req.body });
+  auth
+    .forgotPassword(req.body)
+    .then(message => {
+      logger.info("FORGOT_PASSWORD_SUCCEDED", { email: req.body.email });
+      res.status(200).send(message);
+    })
+    .catch(err => {
+      logger.error("FORGOT_PASSWORD_FAILED", { body: req.body, err });
+      if (err instanceof APIError) {
+        const { type, message } = err;
+        res.status(400).send({ type, message });
+      } else {
+        res.status(500).send();
+      }
+    });
+});
+
+/**
+ * Reset password
+ */
+router.patch("/resetPassword/:token", (req, res) => {
+  logger.info("RESET_PASSWORD_REQUEST", {
+    token: req.params.token
+  });
+  auth
+    .resetPassword(req.body, req.params.token)
+    .then(user => {
+      logger.info("RESET_PASSWORD_SUCCEDED", { user: user.email });
+      res.status(200).send(user);
+    })
+    .catch(err => {
+      logger.error("RESET_PASSWORD_FAILED", { err });
+      if (err instanceof APIError) {
+        const { type, message } = err;
+        res.status(400).send({ type, message });
+      } else {
+        res.status(500).send();
+      }
+    });
+});
+
 module.exports = router;

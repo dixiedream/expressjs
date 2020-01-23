@@ -4,9 +4,11 @@
  * Time: 17:05
  */
 const bcrypt = require("bcryptjs");
+const crypto = require("crypto");
 const jwt = require("jsonwebtoken");
 const Joi = require("@hapi/joi");
 const mongoose = require("mongoose");
+const moment = require("moment");
 
 const { JWT_PRIVATE_KEY, JWT_ISSUER } = process.env;
 const { Schema } = mongoose;
@@ -21,11 +23,16 @@ const UserSchema = new Schema(
     password: {
       type: String,
       required: true
-    }
+    },
+    resetPasswordToken: String,
+    resetPasswordTokenExpiration: Date
   },
   { timestamps: true }
 );
 
+/**
+ * Hooks
+ */
 UserSchema.pre("save", async function hashPassword(next) {
   const user = this;
   if (user.isModified("password")) {
@@ -35,6 +42,23 @@ UserSchema.pre("save", async function hashPassword(next) {
   }
   next();
 });
+
+/**
+ * Methods
+ */
+UserSchema.methods.getResetPasswordToken = function getResetPasswordToken() {
+  const token = crypto.randomBytes(20).toString("hex");
+  this.resetPasswordToken = crypto
+    .createHash("sha256")
+    .update(token)
+    .digest("hex");
+
+  this.resetPasswordTokenExpiration = moment()
+    .add({ minutes: 10 })
+    .toDate();
+
+  return token;
+};
 
 UserSchema.methods.generateAuthToken = function generateAuthToken() {
   const token = jwt.sign(
@@ -51,6 +75,28 @@ UserSchema.methods.generateAuthToken = function generateAuthToken() {
   return token;
 };
 
+/**
+ * Static methods
+ */
+UserSchema.statics.findOneByResetToken = async function findOneByResetToken(
+  clearToken
+) {
+  const hashedToken = crypto
+    .createHash("sha256")
+    .update(clearToken)
+    .digest("hex");
+
+  const user = await this.findOne({
+    resetPasswordToken: hashedToken,
+    resetPasswordTokenExpiration: { $gt: new Date() }
+  });
+
+  return user;
+};
+
+/**
+ * Exports
+ */
 exports.User = mongoose.model("User", UserSchema);
 exports.validate = user => {
   const joiModel = Joi.object({

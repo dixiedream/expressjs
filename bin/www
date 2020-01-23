@@ -18,7 +18,8 @@ const server = app.listen(PORT, () => {
 // a graceful shutdown of node process
 //
 
-// eslint-disable-next-line consistent-return
+const sockets = {};
+
 function waitForSocketsToClose(counter) {
   if (counter > 0) {
     logger.info(
@@ -30,9 +31,11 @@ function waitForSocketsToClose(counter) {
   }
 
   logger.info("Forcing all connections to close now");
-  for (const socketId in sockets) {
-    sockets[socketId].destroy();
-  }
+  sockets.forEach(socket => {
+    socket.destroy();
+  });
+
+  return true;
 }
 
 // shut down server
@@ -60,7 +63,6 @@ process.on("SIGTERM", () => {
   shutdown();
 });
 
-const sockets = {};
 let nextSocketId = 0;
 server.on("connection", socket => {
   // eslint-disable-next-line no-plusplus
@@ -71,5 +73,3 @@ server.on("connection", socket => {
     delete sockets[socketId];
   });
 });
-
-module.exports = server;
