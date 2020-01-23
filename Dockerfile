@@ -7,7 +7,7 @@ EXPOSE 3000
 ENV TZ=Europe/Rome
 ENV NODE_ENV=production
 ENV PORT 3000
-RUN apk add --no-cache tini tzdata && \
+RUN apk add --no-cache bash tini tzdata && \
   cp /usr/share/zoneinfo/${TZ} /etc/localtime && \
   echo "${TZ}" >  /etc/timezone && \
   apk del tzdata
@@ -17,7 +17,10 @@ RUN npm config list
 RUN npm ci && \
   npm cache clean --force
 ENV PATH=/app/node_modules/.bin:$PATH
-ENTRYPOINT [ "/sbin/tini", "--" ]
+
+COPY docker-entrypoint.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+ENTRYPOINT [ "docker-entrypoint.sh" ]
 CMD [ "node", "./bin/www" ]
 
 # Image for development
@@ -36,9 +39,9 @@ ENV JWT_PRIVATE_KEY=notSoSecretPassword
 ENV JWT_ISSUER=https://dummy.issuer.com
 COPY . .
 RUN eslint .
-RUN npm run test:unit
+RUN jest ./tests/unit/*
 # To run with docker-compose
-CMD [ "npm", "run", "test:integration" ] 
+CMD [ "jest", "./tests/integration/*", "--ci", "--runInBand", "--coverage" ]
 
 # Audit image
 FROM test AS audit

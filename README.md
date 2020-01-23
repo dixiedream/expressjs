@@ -1,13 +1,17 @@
 # Express.js
 Boilerplate for creating nodejs app using Docker multistage build
 
+[![tested with jest](https://img.shields.io/badge/tested_with-jest-99424f.svg)](https://github.com/facebook/jest) [![jest](https://jestjs.io/img/jest-badge.svg)](https://github.com/facebook/jest)
+
 ## Application structure
 
 ```
 src/api/controllers/ # actual API request handlers
 src/api/models/ # Mongoose model
 src/api/routes/ # Routes definitions
-src/config/ # Common configuration files (es. openapi.json)
+src/config/ # Common configuration/setup files (es. db connection, logger, production stuff)
+src/middleware/ # Just middlewares
+src/shared/ # The place to put other common stuff (es. errors, mail handling)
 tests/ # tests for controllers, models, other logical units - within properly reflected file structure
 ```
 
@@ -28,9 +32,6 @@ Follow [Airbnb style guide](https://github.com/airbnb/javascript). [ESLint](http
 ## Extra
 
 To connect with a GUI to the dev mongo db instance us [MongoDb Compass](https://www.mongodb.com/download-center/compass)
-
-## ToDo
-- Better dealing with Node.js shutdown using [Connection tracking](https://github.com/hunterloftis/stoppable)
 
 ## Contributing
 
