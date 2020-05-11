@@ -1,5 +1,4 @@
 const express = require("express");
-const router = require("express").Router();
 const error = require("../../middleware/error");
 const profiler = require("../../middleware/profiler");
 
