@@ -21,7 +21,7 @@ module.exports = app => {
   /**
    * Healthcheck route
    */
-  router.get("/healthz", (req, res) => {
+  app.get("/healthz", (req, res) => {
     res.status(200).send("I'm happy and healthy\n");
   });
 
