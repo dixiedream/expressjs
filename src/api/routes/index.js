@@ -10,11 +10,8 @@ const users = require("./users");
 
 // Setup swagger route for displaying docs
 
-module.exports = app => {
-  //  Middlewares
-  if (process.env.NODE_ENV === "development") {
-    app.use(profiler);
-  }
+module.exports = (app) => {
+  app.use(profiler);
   app.use(express.json({ limit: "1mb" })); // Change limit body size
 
   /**

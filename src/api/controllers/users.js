@@ -3,7 +3,7 @@ const UserExistsError = require("../../shared/errors/UserError/UserExistsError")
 const InvalidDataError = require("../../shared/errors/InvalidDataError");
 
 module.exports = {
-  register: async body => {
+  register: async (body) => {
     const { error } = validate(body);
     if (error) {
       throw new InvalidDataError(error.details[0].message);
@@ -14,7 +14,7 @@ module.exports = {
 
     user = new User({
       email: body.email,
-      password: body.password
+      password: body.password,
     });
 
     await user.save();
@@ -22,5 +22,5 @@ module.exports = {
     const token = user.generateAuthToken();
 
     return { token, email: user.email };
-  }
+  },
 };

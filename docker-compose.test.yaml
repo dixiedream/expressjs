@@ -2,7 +2,7 @@
 version: "2.4"
 
 services:
-  backend:
+  tests:
     build:
       context: ./
       target: test
@@ -12,8 +12,8 @@ services:
       - JWT_ISSUER=https://your.issuer.com
       - MONGO_CONNECTION=mongodb://db:27017/expressmongo_tests
     volumes:
-      #- .:/app # For Linux
-      - .:/app:delegated # Only for Mac
+      - .:/app
+      #- .:/app:delegated # Only for Mac
     user: node
     depends_on:
       db:
@@ -22,7 +22,7 @@ services:
   db:
     image: mongo:4
     healthcheck:
-      test: echo 'db.runCommand("ping").ok' | mongo localhost:27017/driveAPI_tests --quiet
+      test: echo 'db.runCommand("ping").ok' | mongo localhost:27017/expressmongo_tests --quiet
       interval: 5s
       start_period: 10s
       timeout: 4s

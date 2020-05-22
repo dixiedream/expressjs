@@ -18,7 +18,7 @@ const auth = async (req, res, next) => {
     token = token.replace("Bearer ", "");
     const data = jwt.verify(token, JWT_PRIVATE_KEY, {
       algotithms: ["HS256"],
-      issuer: [JWT_ISSUER]
+      issuer: [JWT_ISSUER],
     });
     const user = await User.findOne({ _id: data._id });
     if (!user) {
@@ -31,7 +31,7 @@ const auth = async (req, res, next) => {
   } catch (error) {
     logger.info("AUTHORIZATION_FAILED", {
       errorName: error.name,
-      errorMessage: error.message
+      errorMessage: error.message,
     });
     if (
       error instanceof NotAuthorizedError ||

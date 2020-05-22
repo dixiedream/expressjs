@@ -1,21 +1,20 @@
 const http = require("http");
-const logger = require("./src/config/logger");
 
 const options = {
   timeout: 2000,
   host: "localhost",
   port: process.env.PORT || 3000,
-  path: "/healthz" // must be the same as HEALTHCHECK in Dockerfile
+  path: "/healthz", // must be the same as HEALTHCHECK in Dockerfile
 };
 
-const request = http.request(options, res => {
-  logger.info(`STATUS: ${res.statusCode}`);
+const request = http.request(options, (res) => {
+  console.info(`STATUS: ${res.statusCode}`);
   process.exitCode = res.statusCode === 200 ? 0 : 1;
   process.exit();
 });
 
-request.on("error", err => {
-  logger.error("ERROR", err);
+request.on("error", (err) => {
+  console.error("ERROR", err);
   process.exit(1);
 });
 

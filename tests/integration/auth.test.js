@@ -25,7 +25,7 @@ describe(endpoint, () => {
 
   afterAll(async () => {
     const { connections } = mongoose;
-    connections.forEach(con => {
+    connections.forEach((con) => {
       return con.close();
     });
 
@@ -45,7 +45,7 @@ describe(endpoint, () => {
     it("should return 200 if valid request", async () => {
       const user = new User({
         email: "saymyname@hbo.com",
-        password: "eisenberg"
+        password: "eisenberg",
       });
 
       resetToken = user.getResetPasswordToken();
@@ -58,7 +58,7 @@ describe(endpoint, () => {
     it("should return 400 if token expired", async () => {
       const user = new User({
         email: "saymyname@hbo.com",
-        password: "eisenberg"
+        password: "eisenberg",
       });
 
       resetToken = user.getResetPasswordToken();
@@ -82,15 +82,13 @@ describe(endpoint, () => {
     let email;
 
     const exec = async () => {
-      return request(server)
-        .post(`${endpoint}/forgotPassword`)
-        .send({ email });
+      return request(server).post(`${endpoint}/forgotPassword`).send({ email });
     };
 
     it("should return 200 if user exists", async () => {
       const user = await new User({
         email: "saymyname@hbo.com",
-        password: "eisenberg"
+        password: "eisenberg",
       }).save();
       email = user.email;
       const res = await exec();
@@ -116,9 +114,7 @@ describe(endpoint, () => {
     let password;
 
     const exec = async () => {
-      return request(server)
-        .post(endpoint)
-        .send({ email, password });
+      return request(server).post(endpoint).send({ email, password });
     };
 
     it("should return the access token if valid", async () => {

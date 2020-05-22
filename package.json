@@ -1,10 +1,10 @@
 {
-    "description": "Project description",
+    "description": "Express JS Boilerplate",
     "version": "0.0.0",
     "private": true,
     "main": "app.js",
     "scripts": {
-        "test:dev": "jest ./tests/* --runInBand --watchAll --coverage",
+        "test:dev": "jest ./tests/* --colors --runInBand --watchAll",
         "test:integration": "jest ./tests/integration/* --runInBand --coverage",
         "test:unit": "jest ./tests/unit/*"
     },
@@ -17,7 +17,6 @@
     "license": "ISC",
     "dependencies": {
         "@hapi/joi": "^17.1.1",
-        "@sendgrid/mail": "^7.0.1",
         "bcryptjs": "^2.4.3",
         "compression": "^1.7.4",
         "express": "^4.17.1",
@@ -25,7 +24,7 @@
         "helmet": "^3.22.0",
         "jsonwebtoken": "^8.5.1",
         "moment": "^2.24.0",
-        "mongoose": "^5.9.10",
+        "mongoose": "^5.9.14",
         "nodemailer": "^6.4.6",
         "winston": "^3.2.1"
     },
@@ -35,12 +34,15 @@
         "eslint-config-prettier": "^6.11.0",
         "eslint-plugin-import": "^2.20.2",
         "eslint-plugin-prettier": "^3.1.3",
-        "jest": "^25.5.0",
+        "jest": "^25.5.4",
         "nodemon": "^2.0.3",
         "prettier": "^2.0.5",
         "supertest": "^4.0.2"
     },
     "jest": {
+        "setupFilesAfterEnv": [
+            "./tests/jest.setup.js"
+        ],
         "testEnvironment": "node",
         "coverageReporters": [
             "text"

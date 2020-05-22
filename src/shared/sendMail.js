@@ -1,5 +1,4 @@
 const nodemailer = require("nodemailer");
-const sgMail = require("@sendgrid/mail");
 const logger = require("../config/logger");
 
 const {
@@ -9,8 +8,7 @@ const {
   SMTP_PASSWORD,
   FROM_NAME,
   FROM_EMAIL,
-  SENDGRID_API_KEY,
-  NODE_ENV
+  NODE_ENV,
 } = process.env;
 
 const sendMail = async ({ email, subject, text }) => {
@@ -21,17 +19,11 @@ const sendMail = async ({ email, subject, text }) => {
     to: email,
     subject,
     text,
-    html: `<b>${text}</b>`
+    html: `<b>${text}</b>`,
   };
 
   if (NODE_ENV === "production") {
-    sgMail.setApiKey(SENDGRID_API_KEY);
-    try {
-      await sgMail.send(message);
-      logger.info("SEND_MESSAGE_SUCCEEDED");
-    } catch (err) {
-      logger.error("SEND_MESSAGE_FAILED", { err: err.toString() });
-    }
+    // Setup your library
   } else {
     const transporter = nodemailer.createTransport({
       host: SMTP_HOST,
@@ -39,8 +31,8 @@ const sendMail = async ({ email, subject, text }) => {
       secure: SMTP_PORT === 465,
       auth: {
         user: SMTP_USERNAME,
-        pass: SMTP_PASSWORD
-      }
+        pass: SMTP_PASSWORD,
+      },
     });
 
     try {

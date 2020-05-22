@@ -24,15 +24,10 @@ file_env() {
 }
 
 ## Secret stuff
-
-# Db 
-file_env 'MONGO_DATABASE_NAME' 'expressmongo'
-
-# JWT
-file_env 'JWT_PRIVATE_KEY' 'secret'
-
-# Sendgrid API Key
-file_env 'SENDGRID_API_KEY' 'yourAPIKey'
+# Every file based secret needed should be defined here, it will be overwritten
+# in docker compose at runtime if working in local development and in docker swarm file on production with the _FILE suffix
+file_env 'MONGO_CONNECTION'
+file_env 'JWT_PRIVATE_KEY'
 
 ## Entrypoint
 exec /sbin/tini -- "$@"

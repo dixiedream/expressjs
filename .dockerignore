@@ -3,6 +3,7 @@ coverage
 node_modules
 seeds
 *.env
+devtests.sh
 npm-debug.log
 docker-compose*
 *.postman_collection.json

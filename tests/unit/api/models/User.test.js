@@ -6,7 +6,7 @@ const { JWT_PRIVATE_KEY, JWT_ISSUER } = process.env;
 
 const payload = {
   _id: new mongoose.Types.ObjectId().toHexString(),
-  email: "abc@abc.com"
+  email: "abc@abc.com",
 };
 
 describe("User.getResetPasswordToken", () => {
@@ -25,7 +25,7 @@ describe("User.generateAuthToken", () => {
     const token = user.generateAuthToken();
     const decoded = jwt.verify(token, JWT_PRIVATE_KEY, {
       issuer: [JWT_ISSUER],
-      algorithms: ["HS256"]
+      algorithms: ["HS256"],
     });
 
     expect(decoded).toMatchObject(payload);

@@ -13,15 +13,8 @@ const ResetTokenExpiredError = require("../../shared/errors/AuthenticationError/
  */
 function validate(body) {
   const joiModel = Joi.object({
-    email: Joi.string()
-      .min(5)
-      .max(255)
-      .required()
-      .email(),
-    password: Joi.string()
-      .min(5)
-      .max(255)
-      .required()
+    email: Joi.string().min(5).max(255).required().email(),
+    password: Joi.string().min(5).max(255).required(),
   });
 
   return joiModel.validate(body);
@@ -29,11 +22,7 @@ function validate(body) {
 
 function validateForgotPassword(body) {
   const joiModel = Joi.object({
-    email: Joi.string()
-      .min(5)
-      .max(255)
-      .required()
-      .email()
+    email: Joi.string().min(5).max(255).required().email(),
   });
 
   return joiModel.validate(body);
@@ -41,17 +30,14 @@ function validateForgotPassword(body) {
 
 function validateResetPassword(body) {
   const joiModel = Joi.object({
-    password: Joi.string()
-      .min(5)
-      .max(255)
-      .required()
+    password: Joi.string().min(5).max(255).required(),
   });
 
   return joiModel.validate(body);
 }
 
 module.exports = {
-  authenticate: async body => {
+  authenticate: async (body) => {
     const { error } = validate(body);
     if (error) {
       throw new InvalidDataError(error.details[0].message);
@@ -69,7 +55,7 @@ module.exports = {
 
     return token;
   },
-  forgotPassword: async body => {
+  forgotPassword: async (body) => {
     const { error } = validateForgotPassword(body);
     if (error) {
       throw new InvalidDataError(error.details[0].message);
@@ -90,7 +76,7 @@ module.exports = {
       await sendMail({
         email: user.email,
         subject: "Your reset password link",
-        text: message
+        text: message,
       });
     } catch (err) {
       user.resetPasswordToken = undefined;
@@ -126,7 +112,7 @@ module.exports = {
 
     return {
       email: user.email,
-      token: authToken
+      token: authToken,
     };
-  }
+  },
 };

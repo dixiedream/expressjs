@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const logger = require("../config/logger");
+const logger = require("./logger");
 
 const { NODE_ENV, MONGO_CONNECTION } = process.env;
 
@@ -14,7 +14,7 @@ module.exports = () => {
       useCreateIndex: true,
       autoIndex,
       useNewUrlParser: true,
-      useUnifiedTopology: true
+      useUnifiedTopology: true,
     })
     .then(() => {
       if (NODE_ENV === "development") {
@@ -23,7 +23,7 @@ module.exports = () => {
         logger.info("DB_CONNECTED");
       }
     })
-    .catch(err => {
+    .catch((err) => {
       logger.error("DB_CONNECTION_FAILED", err);
     });
 };

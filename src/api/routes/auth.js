@@ -15,11 +15,11 @@ router.post("/", (req, res) => {
   logger.info("AUTHENTICATION_REQUEST", { email: req.body.email });
   auth
     .authenticate(req.body)
-    .then(token => {
+    .then((token) => {
       logger.info("AUTHENTICATION_SUCCEDED", { email: req.body.email });
       res.send({ token });
     })
-    .catch(error => {
+    .catch((error) => {
       if (error instanceof APIError) {
         const { type, message } = error;
         logger.info("AUTHENTICATION_FAILED", { email: req.body.email, type });
@@ -38,11 +38,11 @@ router.post("/forgotPassword", (req, res) => {
   logger.info("FORGOT_PASSWORD_REQUEST", { body: req.body });
   auth
     .forgotPassword(req.body)
-    .then(message => {
+    .then((message) => {
       logger.info("FORGOT_PASSWORD_SUCCEDED", { email: req.body.email });
       res.status(200).send(message);
     })
-    .catch(err => {
+    .catch((err) => {
       logger.error("FORGOT_PASSWORD_FAILED", { body: req.body, err });
       if (err instanceof APIError) {
         const { type, message } = err;
@@ -58,15 +58,15 @@ router.post("/forgotPassword", (req, res) => {
  */
 router.patch("/resetPassword/:token", (req, res) => {
   logger.info("RESET_PASSWORD_REQUEST", {
-    token: req.params.token
+    token: req.params.token,
   });
   auth
     .resetPassword(req.body, req.params.token)
-    .then(user => {
+    .then((user) => {
       logger.info("RESET_PASSWORD_SUCCEDED", { user: user.email });
       res.status(200).send(user);
     })
-    .catch(err => {
+    .catch((err) => {
       logger.error("RESET_PASSWORD_FAILED", { err });
       if (err instanceof APIError) {
         const { type, message } = err;

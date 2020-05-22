@@ -31,7 +31,7 @@ function waitForSocketsToClose(counter) {
   }
 
   logger.info("Forcing all connections to close now");
-  sockets.forEach(socket => {
+  sockets.forEach((socket) => {
     socket.destroy();
   });
 
@@ -64,7 +64,7 @@ process.on("SIGTERM", () => {
 });
 
 let nextSocketId = 0;
-server.on("connection", socket => {
+server.on("connection", (socket) => {
   // eslint-disable-next-line no-plusplus
   const socketId = nextSocketId++;
   sockets[socketId] = socket;

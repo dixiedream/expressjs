@@ -10,8 +10,8 @@ services:
     env_file:
       - ./.env
     volumes:
-      #- .:/app # For Linux
-      - .:/app:delegated # Only for Mac
+      - .:/app
+      #- .:/app:delegated # Only for Mac
     ports:
       - 3000:3000
       - 9229:9229
@@ -45,7 +45,7 @@ services:
     env_file:
       - ./.env
     environment:
-      - DB_URI=mongodb://db/${MONGO_DATABASE_NAME}
+      - DB_URI={MONGO_CONNECTION}
       - DROP_DATABASE=false
       - DROP_COLLECTIONS=true
     depends_on:

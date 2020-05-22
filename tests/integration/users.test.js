@@ -20,9 +20,7 @@ describe(endpoint, () => {
     let password;
 
     const exec = async () => {
-      return request(server)
-        .post(endpoint)
-        .send({ email, password });
+      return request(server).post(endpoint).send({ email, password });
     };
 
     it("should save the user if valid", async () => {
@@ -60,7 +58,7 @@ describe(endpoint, () => {
     it("should return 200 if logged in", async () => {
       const user = await new User({
         email: "johndoe@anonymous.com",
-        password: "rememberthefifth"
+        password: "rememberthefifth",
       }).save();
 
       const token = user.generateAuthToken();

@@ -43,10 +43,10 @@ pipeline {
 
     stage('Integration tests') {
       steps {
-        sh "docker run --name testDb -d mongo:4"
+        sh "docker run --name expressTestDb -d mongo:4"
         retry(1){
           sh '''
-            docker run --link=testDb:db --rm \
+            docker run --link=expressTestDb:db --rm \
               -e \"JWT_PRIVATE_KEY=testSecret\" \
               -e \"JWT_ISSUER=https://your.issuer.com\" \
               -e \"MONGO_CONNECTION=mongodb://db:27017/expressjs_tests\" \
@@ -57,7 +57,7 @@ pipeline {
       }
       post{
           always{
-            sh "docker rm --force testDb"
+            sh "docker rm --force expressTestDb"
           }
           success{
               echo "====++++Tests passed++++===="
@@ -107,7 +107,7 @@ pipeline {
         }
       }
       steps {
-        sh "echo $REGISTRY_CREDS_PSW | docker login -u $REGISTRY_CREDS_USR --password-stdin REGISTRY_NAME"
+        sh "echo $REGISTRY_CREDS_PSW | docker login -u $REGISTRY_CREDS_USR --password-stdin $REGISTRY_NAME"
         sh "docker push $BUILD_IMAGE_REPO_TAG"
         sh "docker push ${params.IMAGE_REPO_NAME}:$COMMIT_TAG"
         sh "docker push ${params.IMAGE_REPO_NAME}:${readJSON(file: 'package.json').version}"

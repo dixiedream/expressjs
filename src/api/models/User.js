@@ -18,14 +18,14 @@ const UserSchema = new Schema(
     email: {
       type: String,
       unique: true,
-      required: true
+      required: true,
     },
     password: {
       type: String,
-      required: true
+      required: true,
     },
     resetPasswordToken: String,
-    resetPasswordTokenExpiration: Date
+    resetPasswordTokenExpiration: Date,
   },
   { timestamps: true }
 );
@@ -53,9 +53,7 @@ UserSchema.methods.getResetPasswordToken = function getResetPasswordToken() {
     .update(token)
     .digest("hex");
 
-  this.resetPasswordTokenExpiration = moment()
-    .add({ minutes: 10 })
-    .toDate();
+  this.resetPasswordTokenExpiration = moment().add({ minutes: 10 }).toDate();
 
   return token;
 };
@@ -64,12 +62,12 @@ UserSchema.methods.generateAuthToken = function generateAuthToken() {
   const token = jwt.sign(
     {
       _id: this._id,
-      email: this.email
+      email: this.email,
     },
     JWT_PRIVATE_KEY,
     {
       expiresIn: "30d",
-      issuer: JWT_ISSUER
+      issuer: JWT_ISSUER,
     }
   );
   return token;
@@ -88,7 +86,7 @@ UserSchema.statics.findOneByResetToken = async function findOneByResetToken(
 
   const user = await this.findOne({
     resetPasswordToken: hashedToken,
-    resetPasswordTokenExpiration: { $gt: new Date() }
+    resetPasswordTokenExpiration: { $gt: new Date() },
   });
 
   return user;
@@ -98,17 +96,10 @@ UserSchema.statics.findOneByResetToken = async function findOneByResetToken(
  * Exports
  */
 exports.User = mongoose.model("User", UserSchema);
-exports.validate = user => {
+exports.validate = (user) => {
   const joiModel = Joi.object({
-    email: Joi.string()
-      .min(5)
-      .max(255)
-      .required()
-      .email(),
-    password: Joi.string()
-      .min(5)
-      .max(255)
-      .required()
+    email: Joi.string().min(5).max(255).required().email(),
+    password: Joi.string().min(5).max(255).required(),
   });
 
   return joiModel.validate(user);
