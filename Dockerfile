@@ -1,5 +1,5 @@
 # Node base image
-FROM node:12-alpine AS base
+FROM node:14-alpine AS base
 LABEL org.opencontainers.image.authors=alessandro.lucarini@smanapp.com
 LABEL org.opencontainers.image.title="ExpressJs boilerplate"
 LABEL org.opencontainers.image.licenses=MIT
@@ -47,11 +47,9 @@ CMD [ "jest", "./tests/integration/*", "--ci", "--runInBand", "--coverage" ]
 FROM test AS audit
 USER root
 RUN npm audit --audit-level critical
-ARG MICROSCANNER_TOKEN
-ADD https://get.aquasec.com/microscanner /
-RUN chmod +x /microscanner
-RUN apk add --no-cache ca-certificates && update-ca-certificates
-RUN /microscanner ${MICROSCANNER_TOKEN} --continue-on-failure
+RUN apk add --no-cache curl \
+    && curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/master/contrib/install.sh | sh -s -- -b /usr/local/bin \
+    && trivy filesystem --no-progress /
 
 # Cleaning image before production
 FROM test AS pre-prod

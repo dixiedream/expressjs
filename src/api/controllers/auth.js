@@ -1,4 +1,4 @@
-const Joi = require("@hapi/joi");
+const Joi = require("joi");
 const bcrypt = require("bcryptjs");
 const sendMail = require("../../shared/sendMail");
 const { User } = require("../models/User");

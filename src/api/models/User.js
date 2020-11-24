@@ -6,7 +6,7 @@
 const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
 const jwt = require("jsonwebtoken");
-const Joi = require("@hapi/joi");
+const Joi = require("joi");
 const mongoose = require("mongoose");
 const moment = require("moment");
 
