@@ -2,16 +2,24 @@
 version: "2.4"
 
 services:
-  # The epxress backend service
+  # The express backend service
   backend:
     build:
       context: ./
       target: dev
-    env_file:
-      - ./.env
+    environment: 
+      - TZ
+      - MONGO_CONNECTION
+      - JWT_PRIVATE_KEY
+      - JTW_ISSUER
+      - SMTP_HOST
+      - SMTP_PORT
+      - SMTP_USERNAME
+      - SMTP_PASSWORD
+      - FROM_EMAIL
+      - FROM_NAME
     volumes:
       - .:/app
-      #- .:/app:delegated # Only for Mac
     ports:
       - 3000:3000
       - 9229:9229
@@ -22,8 +30,9 @@ services:
   # The local mongodb service
   db:
     image: mongo:4
-    env_file:
-      - ./.env
+    environment: 
+      - TZ
+      - MONGO_DATABASE_NAME
     volumes:
       - dbdata:/data/db
     ports:
@@ -42,8 +51,6 @@ services:
     image: pkosiec/mongo-seeding:3.3.0
     volumes:
       - ./seeds:/data
-    env_file:
-      - ./.env
     environment:
       - DB_URI={MONGO_CONNECTION}
       - DROP_DATABASE=false

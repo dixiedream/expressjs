@@ -47,9 +47,8 @@ CMD [ "jest", "./tests/integration/*", "--ci", "--runInBand", "--coverage" ]
 FROM test AS audit
 USER root
 RUN npm audit --audit-level critical
-RUN apk add --no-cache curl \
-    && curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/master/contrib/install.sh | sh -s -- -b /usr/local/bin \
-    && trivy filesystem --no-progress /
+COPY --from=aquasec/trivy:latest /usr/local/bin/trivy /usr/local/bin/trivy
+RUN trivy filesystem --no-progress /
 
 # Cleaning image before production
 FROM test AS pre-prod
