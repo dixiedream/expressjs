@@ -32,7 +32,7 @@ Follow [Airbnb style guide](https://github.com/airbnb/javascript). [ESLint](http
 
 ## Extra
 
-To connect with a GUI to the dev mongo db instance us [MongoDb Compass](https://www.mongodb.com/download-center/compass)
+To connect with a GUI to the dev mongo db instance use [MongoDb Compass](https://www.mongodb.com/download-center/compass)
 
 ## Contributing
 
