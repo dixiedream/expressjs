@@ -29,7 +29,7 @@ services:
 
   # The local mongodb service
   db:
-    image: mongo:4
+    image: mongo:5
     environment: 
       - TZ
       - MONGO_DATABASE_NAME
@@ -48,11 +48,11 @@ services:
 
   # Takes js file in the seeds folder for creating the initial state of the app
   seeder:
-    image: pkosiec/mongo-seeding:3.3.0
+    image: pkosiec/mongo-seeding:latest
     volumes:
       - ./seeds:/data
     environment:
-      - DB_URI={MONGO_CONNECTION}
+      - DB_URI=${MONGO_CONNECTION}
       - DROP_DATABASE=false
       - DROP_COLLECTIONS=true
     depends_on:

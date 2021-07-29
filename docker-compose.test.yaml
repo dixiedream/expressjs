@@ -20,7 +20,7 @@ services:
         condition: service_healthy
 
   db:
-    image: mongo:4
+    image: mongo:5
     healthcheck:
       test: echo 'db.runCommand("ping").ok' | mongo localhost:27017/expressmongo_tests --quiet
       interval: 5s

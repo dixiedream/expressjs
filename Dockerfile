@@ -1,5 +1,5 @@
 # Node base image
-FROM node:14-alpine AS base
+FROM node:lts-alpine AS base
 LABEL org.opencontainers.image.authors=alessandro.lucarini@smanapp.com
 LABEL org.opencontainers.image.title="ExpressJs boilerplate"
 LABEL org.opencontainers.image.licenses=MIT

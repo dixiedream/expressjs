@@ -5,9 +5,7 @@
  */
 const APIError = require("../APIError");
 
-module.exports = class MissingTokenError extends (
-  APIError
-) {
+module.exports = class MissingTokenError extends APIError {
   constructor(message) {
     super(message || "No token provided");
   }
