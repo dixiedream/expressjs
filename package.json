@@ -3,11 +3,6 @@
     "version": "0.0.0",
     "private": true,
     "main": "app.js",
-    "scripts": {
-        "test:dev": "jest ./tests/* --colors --runInBand --watchAll",
-        "test:integration": "jest ./tests/integration/* --runInBand --coverage",
-        "test:unit": "jest ./tests/unit/*"
-    },
     "keywords": [
         "nodejs",
         "expressjs",
@@ -42,6 +37,10 @@
     "jest": {
         "setupFilesAfterEnv": [
             "./tests/jest.setup.js"
+        ],
+        "roots": [
+            "./src/",
+            "./tests/"
         ],
         "testEnvironment": "node",
         "coverageReporters": [

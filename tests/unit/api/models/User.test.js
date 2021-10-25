@@ -10,6 +10,18 @@ const payload = {
 };
 
 describe("User.getResetPasswordToken", () => {
+  afterEach(async () => {
+    await User.deleteMany({});
+  });
+
+  afterAll(async () => {
+    const { connections } = mongoose;
+    connections.forEach((con) => {
+      return con.close();
+    });
+    return mongoose.disconnect();
+  });
+
   it("should set the user token and its expiration", () => {
     const user = new User(payload);
 
@@ -20,6 +32,18 @@ describe("User.getResetPasswordToken", () => {
 });
 
 describe("User.generateAuthToken", () => {
+  afterEach(async () => {
+    await User.deleteMany({});
+  });
+
+  afterAll(async () => {
+    const { connections } = mongoose;
+    connections.forEach((con) => {
+      return con.close();
+    });
+    return mongoose.disconnect();
+  });
+
   it("should return a valid JWT", () => {
     const user = new User(payload);
     const token = user.generateAuthToken();

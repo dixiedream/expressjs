@@ -12,7 +12,11 @@ describe(endpoint, () => {
   });
 
   afterAll(async () => {
-    await mongoose.disconnect();
+    const { connections } = mongoose;
+    connections.forEach((con) => {
+      return con.close();
+    });
+    return mongoose.disconnect();
   });
 
   describe("POST /", () => {

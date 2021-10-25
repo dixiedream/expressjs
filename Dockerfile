@@ -41,7 +41,7 @@ COPY . .
 RUN eslint .
 RUN jest ./tests/unit/*
 # To run with docker-compose
-CMD [ "jest", "./tests/integration/*", "--ci", "--runInBand", "--coverage" ]
+CMD [ "jest", "./tests/integration/*", "-b", "--ci", "--coverage", "--maxWorkers=1" ]
 
 # Audit image
 FROM test AS audit

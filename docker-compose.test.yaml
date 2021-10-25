@@ -6,7 +6,7 @@ services:
     build:
       context: ./
       target: test
-    command: npm run test:dev
+    command: jest ./tests/* --colors --maxWorkers=1 --watchAll --detectOpenHandles
     environment:
       - JWT_PRIVATE_KEY=testSecret
       - JWT_ISSUER=https://your.issuer.com
@@ -20,9 +20,9 @@ services:
         condition: service_healthy
 
   db:
-    image: mongo:5
+    image: mongo
     healthcheck:
-      test: echo 'db.runCommand("ping").ok' | mongo localhost:27017/expressmongo_tests --quiet
+      test: echo 'db.runCommand("ping").ok' | mongo localhost/expressmongo_tests --quiet
       interval: 5s
       start_period: 10s
       timeout: 4s
