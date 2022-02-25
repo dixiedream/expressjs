@@ -11,7 +11,7 @@ services:
       - TZ
       - MONGO_CONNECTION
       - JWT_PRIVATE_KEY
-      - JTW_ISSUER
+      - JWT_ISSUER
       - SMTP_HOST
       - SMTP_PORT
       - SMTP_USERNAME
@@ -43,14 +43,12 @@ services:
       start_period: 10s
       timeout: 4s
       retries: 3
-    logging: # Remove this two lines in order to enable db logs
-      driver: none
 
   # Takes js file in the seeds folder for creating the initial state of the app
   seeder:
     image: pkosiec/mongo-seeding:latest
     volumes:
-      - ./seeds:/data
+      - ./seeds:/data:ro
     environment:
       - DB_URI=${MONGO_CONNECTION}
       - DROP_DATABASE=false

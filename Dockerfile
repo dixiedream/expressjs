@@ -27,7 +27,7 @@ CMD [ "node", "./bin/www" ]
 FROM base AS dev
 ENV NODE_ENV=development
 RUN npm config list
-RUN npm install --only=development \
+RUN npm install \
   && npm cache clean --force
 USER node
 CMD [ "nodemon", "--inspect=0.0.0.0", "./bin/www"]

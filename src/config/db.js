@@ -11,7 +11,6 @@ const autoIndex = NODE_ENV === "development";
 module.exports = () => {
   mongoose
     .connect(mongoConnection, {
-      useCreateIndex: true,
       autoIndex,
       useNewUrlParser: true,
       useUnifiedTopology: true,

@@ -19,6 +19,6 @@ app.get("/healthz", (req, res) => {
 });
 
 require("./src/api/routes/index")(app);
-require("./src/config/db")();
+// require("./src/config/db")();
 
 module.exports = app;

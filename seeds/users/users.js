@@ -1,6 +1,6 @@
 module.exports = [
   {
-    email: "johndoe@rememberthefifth",
-    password: "rememberthefifth"
-  }
+    email: "johndoe@rememberthefifth.com",
+    password: "rememberthefifth",
+  },
 ];
