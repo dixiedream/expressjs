@@ -1,5 +1,4 @@
 {
-  "eslint.autoFixOnSave": true,
   "eslint.quiet": false,
   "editor.tabSize": 2,
   "editor.codeActionsOnSave": {

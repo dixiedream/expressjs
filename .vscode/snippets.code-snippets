@@ -3,11 +3,6 @@
     "scope": "javascript,typescript",
     "prefix": "error",
     "body": [
-      "/**",
-      " * Created by Alessandro Lucarini",
-      " * Date: ${CURRENT_DATE}/${CURRENT_MONTH}/${CURRENT_YEAR}",
-      " * Time: ${CURRENT_HOUR}:${CURRENT_MINUTE}",
-      " */",
       "const APIError = require(\"../APIError\");",
       "",
       "module.exports = class ${1:moduleName} extends (APIError) {",
@@ -24,11 +19,6 @@
   "Mongoose Model": {
     "prefix": "model",
     "body": [
-      "/**",
-      " * Created by Alessandro Lucarini",
-      " * Date: ${CURRENT_DATE}/${CURRENT_MONTH}/${CURRENT_YEAR}",
-      " * Time: ${CURRENT_HOUR}:${CURRENT_MINUTE}",
-      " */",
       "const Joi = require(\"joi\");",
       "const mongoose = require(\"mongoose\");",
       "",
@@ -69,11 +59,6 @@
   "Route file": {
     "prefix": "routefile",
     "body": [
-      "/**",
-      " * Created by Alessandro Lucarini",
-      " * Date: ${CURRENT_DATE}/${CURRENT_MONTH}/${CURRENT_YEAR}",
-      " * Time: ${CURRENT_HOUR}:${CURRENT_MINUTE}",
-      " */",
       "const router = require(\"express\").Router();",
       "const APIError = require(\"../../shared/errors/APIError\");",
       "const NotFoundError = require(\"../../shared/errors/NotFoundError\");",
@@ -133,11 +118,6 @@
   "Controller": {
     "prefix": "controller",
     "body": [
-      "/**",
-      " * Created by Alessandro Lucarini",
-      " * Date: ${CURRENT_DATE}/${CURRENT_MONTH}/${CURRENT_YEAR}",
-      " * Time: ${CURRENT_HOUR}:${CURRENT_MINUTE}",
-      " */",
       "const { ${1:modelName}, validate } = require(\"../models/${1:modelName}\");",
       "const InvalidDataError = require(\"../../shared/errors/InvalidDataError\");",
       "",
@@ -164,11 +144,6 @@
   "Integration test class": {
     "prefix": "integrationTestClass",
     "body": [
-      "/**",
-      " * Created by Alessandro Lucarini",
-      " * Date: ${CURRENT_DATE}/${CURRENT_MONTH}/${CURRENT_YEAR}",
-      " * Time: ${CURRENT_HOUR}:${CURRENT_MINUTE}",
-      " */",
       "const request = require(\"supertest\");",
       "const mongoose = require(\"mongoose\");",
       "",

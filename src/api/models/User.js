@@ -1,8 +1,3 @@
-/**
- * Created by Alessandro Lucarini
- * Date: 29/10/2019
- * Time: 17:05
- */
 const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
 const jwt = require("jsonwebtoken");

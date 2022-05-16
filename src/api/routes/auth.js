@@ -1,8 +1,3 @@
-/**
- * Created by Alessandro Lucarini
- * Date: 25/10/2019
- * Time: 22:16
- */
 const router = require("express").Router();
 const auth = require("../controllers/auth");
 const APIError = require("../../shared/errors/APIError");
