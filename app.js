@@ -1,4 +1,5 @@
 const express = require("express");
+const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const profiler = require("./src/middleware/profiler");
 
@@ -10,9 +11,11 @@ if (process.env.NODE_ENV === "production") {
 }
 
 //  Middlewares
-app.use(cookieParser);
+app.use(cors({ credentials: true }));
+app.use(cookieParser());
 app.use(profiler);
 app.use(express.json({ limit: "1mb" })); // Change limit body size
+
 /**
  * Healthcheck route
  */

@@ -28,6 +28,7 @@ file_env() {
 # in docker compose at runtime if working in local development and in docker swarm file on production with the _FILE suffix
 file_env 'MONGO_CONNECTION'
 file_env 'JWT_PRIVATE_KEY'
+file_env 'JWT_REFRESH_PRIVATE_KEY'
 
 ## Entrypoint
 exec /sbin/tini -- "$@"

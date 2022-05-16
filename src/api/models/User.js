@@ -5,7 +5,7 @@ const Joi = require("joi");
 const mongoose = require("mongoose");
 const moment = require("moment");
 
-const { JWT_PRIVATE_KEY, JWT_ISSUER } = process.env;
+const { JWT_PRIVATE_KEY, JWT_REFRESH_PRIVATE_KEY, JWT_ISSUER } = process.env;
 const { Schema } = mongoose;
 
 const UserSchema = new Schema(
@@ -18,6 +18,10 @@ const UserSchema = new Schema(
     password: {
       type: String,
       required: true,
+    },
+    refreshTokens: {
+      type: Array,
+      default: [],
     },
     resetPasswordToken: String,
     resetPasswordTokenExpiration: Date,
@@ -57,11 +61,24 @@ UserSchema.methods.generateAuthToken = function generateAuthToken() {
   const token = jwt.sign(
     {
       _id: this._id,
-      email: this.email,
     },
     JWT_PRIVATE_KEY,
     {
-      expiresIn: "30d",
+      expiresIn: "15m",
+      issuer: JWT_ISSUER,
+    }
+  );
+  return token;
+};
+
+UserSchema.methods.generateRefreshToken = function generateRefreshToken() {
+  const token = jwt.sign(
+    {
+      _id: this._id,
+    },
+    JWT_REFRESH_PRIVATE_KEY,
+    {
+      expiresIn: "1y",
       issuer: JWT_ISSUER,
     }
   );

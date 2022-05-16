@@ -18,9 +18,16 @@ router.post("/", (req, res) => {
   logger.info(`CREATE_USER_REQUEST`, { email: req.body.email });
   users
     .register(req.body)
-    .then(({ token, email }) => {
+    .then(({ token, email, refreshToken }) => {
       logger.info("CREATE_USER_SUCCEDED", { email });
-      res.status(201).send({ email, token });
+      res
+        .cookie("refresh_token", refreshToken, {
+          httpOnly: true,
+          maxAge: 31557600000 * 1000,
+          secure: process.env.NODE_ENV === "production",
+        })
+        .status(201)
+        .send({ email, token });
     })
     .catch((error) => {
       if (error instanceof APIError) {

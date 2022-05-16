@@ -5,6 +5,7 @@ const { User } = require("../models/User");
 const AuthenticationFailedError = require("../../shared/errors/AuthenticationError/AuthenticationFailedError");
 const InvalidDataError = require("../../shared/errors/InvalidDataError");
 const ResetTokenExpiredError = require("../../shared/errors/AuthenticationError/ResetTokenExpiredError");
+const { Session } = require("../models/Session");
 
 /**
  * Validates login data, it's different from the user validate functions
@@ -52,8 +53,10 @@ module.exports = {
     }
 
     const token = user.generateAuthToken();
+    const rToken = user.generateRefreshToken();
+    await Session.create({ refreshToken: rToken });
 
-    return token;
+    return { token, refreshToken: rToken };
   },
   forgotPassword: async (body) => {
     const { error } = validateForgotPassword(body);
@@ -109,10 +112,13 @@ module.exports = {
     await user.save();
 
     const authToken = user.generateAuthToken();
+    const rToken = user.generateRefreshToken();
+    await Session.create({ refreshToken: rToken });
 
     return {
       email: user.email,
       token: authToken,
+      refreshToken: rToken,
     };
   },
 };

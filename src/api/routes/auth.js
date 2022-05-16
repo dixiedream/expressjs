@@ -3,6 +3,8 @@ const auth = require("../controllers/auth");
 const APIError = require("../../shared/errors/APIError");
 const logger = require("../../config/logger");
 
+const { NODE_ENV } = process.env;
+
 /**
  * Login the user
  */
@@ -10,9 +12,16 @@ router.post("/", (req, res) => {
   logger.info("AUTHENTICATION_REQUEST", { email: req.body.email });
   auth
     .authenticate(req.body)
-    .then((token) => {
+    .then(({ token, refreshToken }) => {
       logger.info("AUTHENTICATION_SUCCEDED", { email: req.body.email });
-      res.send({ token });
+      res
+        .cookie("refresh_token", refreshToken, {
+          httpOnly: true,
+          maxAge: 31557600000 * 1000,
+          secure: NODE_ENV === "production",
+        })
+        .status(200)
+        .send({ token });
     })
     .catch((error) => {
       if (error instanceof APIError) {
@@ -57,9 +66,16 @@ router.patch("/resetPassword/:token", (req, res) => {
   });
   auth
     .resetPassword(req.body, req.params.token)
-    .then((user) => {
-      logger.info("RESET_PASSWORD_SUCCEDED", { user: user.email });
-      res.status(200).send(user);
+    .then(({ email, token, refreshToken }) => {
+      logger.info("RESET_PASSWORD_SUCCEDED", { user: email });
+      res
+        .cookie("refresh_token", refreshToken, {
+          httpOnly: true,
+          maxAge: 31557600000 * 1000,
+          secure: NODE_ENV === "production",
+        })
+        .status(200)
+        .send({ email, token });
     })
     .catch((err) => {
       logger.error("RESET_PASSWORD_FAILED", { err });

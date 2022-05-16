@@ -7,10 +7,11 @@ services:
     build:
       context: ./
       target: dev
-    environment: 
+    environment:
       - TZ
       - MONGO_CONNECTION
       - JWT_PRIVATE_KEY
+      - JWT_REFRESH_PRIVATE_KEY
       - JWT_ISSUER
       - SMTP_HOST
       - SMTP_PORT
@@ -30,7 +31,7 @@ services:
   # The local mongodb service
   db:
     image: mongo:5
-    environment: 
+    environment:
       - TZ
       - MONGO_DATABASE_NAME
     volumes:
@@ -43,6 +44,19 @@ services:
       start_period: 10s
       timeout: 4s
       retries: 3
+
+  # Db admin web interface
+  dbAdmin:
+    image: mongo-express
+    environment:
+      - ME_CONFIG_MONGODB_SERVER=db
+      - ME_CONFIG_BASICAUTH_USERNAME=root
+      - ME_CONFIG_BASICAUTH_PASSWORD=admin
+    ports:
+      - 8081:8081
+    depends_on:
+      db:
+        condition: service_started
 
   # Takes js file in the seeds folder for creating the initial state of the app
   seeder:
