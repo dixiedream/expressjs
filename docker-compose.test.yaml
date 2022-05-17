@@ -7,11 +7,12 @@ services:
       context: ./
       target: test
     image: expressjs-tests
-    command: jest ./tests/* --colors --maxWorkers=1 --watchAll --detectOpenHandles
+    command: jest ./tests/* --colors --runInBand --watchAll
     environment:
       - JWT_PRIVATE_KEY=testSecret
+      - JWT_REFRESH_PRIVATE_KEY=testSecret
       - JWT_ISSUER=https://your.issuer.com
-      - MONGO_CONNECTION=mongodb://db:27017/expressmongo_tests
+      - MONGO_CONNECTION=mongodb://db/expressmongo_tests
     volumes:
       - .:/app
     user: node
@@ -21,10 +22,8 @@ services:
 
   db:
     image: mongo
-    healthcheck:
-      test: '[ `echo ''db.runCommand("ping").ok'' | mongo localhost/${MONGO_DATABASE_NAME} --quiet` ] && echo 0 || echo 1'
-      # interval: 30s
-      # timeout: 10s
-      # retries: 3
     logging:
       driver: none
+    healthcheck:
+      test: '[ `echo ''db.runCommand("ping").ok'' | mongo localhost/expressmongo_tests --quiet` ] && echo 0 || echo 1'
+    

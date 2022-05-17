@@ -1,12 +1,11 @@
-const jwt = require("jsonwebtoken");
 const mongoose = require("mongoose");
+const { verify: jwtVerify } = require("../../../../src/shared/jwt");
 const { User } = require("../../../../src/api/models/User");
 
-const { JWT_PRIVATE_KEY, JWT_ISSUER } = process.env;
+const { JWT_PRIVATE_KEY, JWT_REFRESH_PRIVATE_KEY } = process.env;
 
 const payload = {
-  _id: new mongoose.Types.ObjectId().toHexString(),
-  email: "abc@abc.com",
+  _id: new mongoose.Types.ObjectId().toString(), // toHexString(),
 };
 
 describe("User.getResetPasswordToken", () => {
@@ -23,11 +22,16 @@ describe("User.generateAuthToken", () => {
   it("should return a valid JWT", () => {
     const user = new User(payload);
     const token = user.generateAuthToken();
-    const decoded = jwt.verify(token, JWT_PRIVATE_KEY, {
-      issuer: [JWT_ISSUER],
-      algorithms: ["HS256"],
-    });
+    const { data } = jwtVerify(token, JWT_PRIVATE_KEY);
+    expect(data.user).toBe(payload._id);
+  });
+});
 
-    expect(decoded).toMatchObject(payload);
+describe("User.generateRefreshToken", () => {
+  it("should return a valid JWT", () => {
+    const user = new User(payload);
+    const token = user.generateRefreshToken();
+    const { data } = jwtVerify(token, JWT_REFRESH_PRIVATE_KEY);
+    expect(data.user).toBe(payload._id);
   });
 });

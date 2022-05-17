@@ -2,15 +2,8 @@
 
 trap ctrl_c INT
 
-function closeAll {
+function ctrl_c() {
   docker-compose -f docker-compose.test.yaml down
 }
 
-function ctrl_c() {
-  closeAll
-}
-
-#docker-compose -f docker-compose.test.yaml up
-docker-compose -f docker-compose.test.yaml run tests
-
-closeAll
+docker-compose -f docker-compose.test.yaml up
