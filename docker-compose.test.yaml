@@ -22,8 +22,6 @@ services:
 
   db:
     image: mongo
-    logging:
-      driver: none
     healthcheck:
       test: '[ `echo ''db.runCommand("ping").ok'' | mongo localhost/expressmongo_tests --quiet` ] && echo 0 || echo 1'
     

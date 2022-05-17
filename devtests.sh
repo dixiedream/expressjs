@@ -6,4 +6,4 @@ function ctrl_c() {
   docker-compose -f docker-compose.test.yaml down
 }
 
-docker-compose -f docker-compose.test.yaml up
+docker-compose -f docker-compose.test.yaml run tests
