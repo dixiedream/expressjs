@@ -22,7 +22,8 @@ module.exports = {
 
     const token = user.generateAuthToken();
     const rToken = user.generateRefreshToken();
-    await Session.create({ refreshToken: rToken });
+    await Session.deleteMany({ user: user._id });
+    await Session.create({ refreshToken: rToken, user: user._id });
 
     return { token, email: user.email, refreshToken: rToken };
   },

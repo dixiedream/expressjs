@@ -1,6 +1,7 @@
 const request = require("supertest");
 const mongoose = require("mongoose");
 const { User } = require("../../src/api/models/User");
+const { Session } = require("../../src/api/models/Session");
 
 const server = require("../../app");
 
@@ -9,6 +10,7 @@ const endpoint = "/api/users";
 describe(endpoint, () => {
   afterEach(async () => {
     await User.deleteMany({});
+    await Session.deleteMany({});
   });
 
   afterAll(async () => {
