@@ -26,4 +26,11 @@ module.exports = {
 
     return { token, email: user.email, refreshToken: rToken };
   },
+  getMe: (user) => {
+    return {
+      email: user.email,
+      role: user.role,
+      createdAt: user.createdAt,
+    };
+  },
 };

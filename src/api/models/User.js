@@ -1,11 +1,16 @@
 const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
-const jwt = require("jsonwebtoken");
 const Joi = require("joi");
 const mongoose = require("mongoose");
 const moment = require("moment");
+const { sign: jwtSign } = require("../../shared/jwt");
+const ROLES = require("../../config/roles");
+const {
+  accessToken: { expiresIn: aTokenExpiration },
+  refreshToken: { expiresIn: rTokenExpiration },
+} = require("../../config/config");
 
-const { JWT_PRIVATE_KEY, JWT_REFRESH_PRIVATE_KEY, JWT_ISSUER } = process.env;
+const { JWT_PRIVATE_KEY, JWT_REFRESH_PRIVATE_KEY } = process.env;
 const { Schema } = mongoose;
 
 const UserSchema = new Schema(
@@ -19,9 +24,9 @@ const UserSchema = new Schema(
       type: String,
       required: true,
     },
-    refreshTokens: {
-      type: Array,
-      default: [],
+    role: {
+      type: Number,
+      default: ROLES.USER,
     },
     resetPasswordToken: String,
     resetPasswordTokenExpiration: Date,
@@ -58,31 +63,11 @@ UserSchema.methods.getResetPasswordToken = function getResetPasswordToken() {
 };
 
 UserSchema.methods.generateAuthToken = function generateAuthToken() {
-  const token = jwt.sign(
-    {
-      _id: this._id,
-    },
-    JWT_PRIVATE_KEY,
-    {
-      expiresIn: "15m",
-      issuer: JWT_ISSUER,
-    }
-  );
-  return token;
+  return jwtSign({ user: this._id }, JWT_PRIVATE_KEY, aTokenExpiration);
 };
 
 UserSchema.methods.generateRefreshToken = function generateRefreshToken() {
-  const token = jwt.sign(
-    {
-      _id: this._id,
-    },
-    JWT_REFRESH_PRIVATE_KEY,
-    {
-      expiresIn: "1y",
-      issuer: JWT_ISSUER,
-    }
-  );
-  return token;
+  return jwtSign({ user: this._id }, JWT_REFRESH_PRIVATE_KEY, rTokenExpiration);
 };
 
 /**
