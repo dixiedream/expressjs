@@ -1,6 +1,7 @@
 const request = require("supertest");
 const mongoose = require("mongoose");
 const { User } = require("../../src/api/models/User");
+const { Session } = require("../../src/api/models/Session");
 
 const server = require("../../app");
 
@@ -9,6 +10,7 @@ const endpoint = "/api/users";
 describe(endpoint, () => {
   afterEach(async () => {
     await User.deleteMany({});
+    await Session.deleteMany({});
   });
 
   afterAll(async () => {
@@ -59,6 +61,28 @@ describe(endpoint, () => {
   });
 
   describe("GET /me", () => {
+    it("should return 200 if token is still valid", async () => {
+      const user = await new User({
+        email: "johndoe@anonymous.com",
+        password: "rememberthefifth",
+      }).save();
+
+      const token = user.generateAuthToken();
+      let res = await request(server)
+        .get(`${endpoint}/me`)
+        .set("Authorization", `Bearer ${token}`)
+        .send();
+
+      expect(res.status).toBe(200);
+
+      res = await request(server)
+        .get(`${endpoint}/me`)
+        .set("Authorization", `Bearer ${token}`)
+        .send();
+
+      expect(res.status).toBe(200);
+    });
+
     it("should return 200 if logged in", async () => {
       const user = await new User({
         email: "johndoe@anonymous.com",
@@ -66,7 +90,6 @@ describe(endpoint, () => {
       }).save();
 
       const token = user.generateAuthToken();
-
       const res = await request(server)
         .get(`${endpoint}/me`)
         .set("Authorization", `Bearer ${token}`)
@@ -75,9 +98,40 @@ describe(endpoint, () => {
       expect(res.status).toBe(200);
     });
 
-    it("should return 401 is user is not logged in", async () => {
-      const res = await request(server).get(`${endpoint}/me`);
+    it("should return 403 if token is invalid", async () => {
+      const user = await new User({
+        email: "johndoe@anonymous.com",
+        password: "rememberthefifth",
+      }).save();
 
+      const token = user.generateAuthToken("1ms");
+
+      const res = await request(server)
+        .get(`${endpoint}/me`)
+        .set("Authorization", `Bearer a${token}Z`)
+        .send();
+
+      expect(res.status).toBe(403);
+    });
+
+    it("should return 403 if token is expired", async () => {
+      const user = await new User({
+        email: "johndoe@anonymous.com",
+        password: "rememberthefifth",
+      }).save();
+
+      const token = user.generateAuthToken("1ms");
+
+      const res = await request(server)
+        .get(`${endpoint}/me`)
+        .set("Authorization", `Bearer ${token}`)
+        .send();
+
+      expect(res.status).toBe(403);
+    });
+
+    it("should return 401 if user is no token is provided", async () => {
+      const res = await request(server).get(`${endpoint}/me`);
       expect(res.status).toBe(401);
     });
   });

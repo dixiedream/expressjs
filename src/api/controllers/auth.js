@@ -5,6 +5,12 @@ const { User } = require("../models/User");
 const AuthenticationFailedError = require("../../shared/errors/AuthenticationError/AuthenticationFailedError");
 const InvalidDataError = require("../../shared/errors/InvalidDataError");
 const ResetTokenExpiredError = require("../../shared/errors/AuthenticationError/ResetTokenExpiredError");
+const { Session } = require("../models/Session");
+const MissingTokenError = require("../../shared/errors/AuthorizationError/MissingTokenError");
+const { verify: jwtVerify } = require("../../shared/jwt");
+const InvalidTokenError = require("../../shared/errors/AuthorizationError/InvalidTokenError");
+
+const { JWT_REFRESH_PRIVATE_KEY } = process.env;
 
 /**
  * Validates login data, it's different from the user validate functions
@@ -52,8 +58,11 @@ module.exports = {
     }
 
     const token = user.generateAuthToken();
+    const rToken = user.generateRefreshToken();
+    await Session.deleteMany({ user: user._id });
+    await Session.create({ refreshToken: rToken, user: user._id });
 
-    return token;
+    return { token, refreshToken: rToken };
   },
   forgotPassword: async (body) => {
     const { error } = validateForgotPassword(body);
@@ -87,6 +96,41 @@ module.exports = {
 
     return { message: "Email sent with reset link" };
   },
+  logout: async (cookies) => {
+    const token = cookies.refresh_token;
+    if (!token) return {};
+
+    return Session.deleteOne({ refreshToken: token });
+  },
+  refresh: async (cookies) => {
+    const token = cookies.refresh_token;
+    if (!token) {
+      throw new MissingTokenError();
+    }
+    const { data, valid } = jwtVerify(token, JWT_REFRESH_PRIVATE_KEY);
+    if (!valid) {
+      throw new InvalidTokenError();
+    }
+
+    const session = await Session.findOne({ refreshToken: token });
+    if (!session) {
+      throw new InvalidTokenError();
+    }
+
+    let { user } = data;
+    user = await User.findOne({
+      _id: user,
+    });
+
+    if (!user) {
+      throw new InvalidTokenError();
+    }
+
+    const authToken = user.generateAuthToken();
+    return {
+      token: authToken,
+    };
+  },
   resetPassword: async (body, token) => {
     const { error } = validateResetPassword(body);
     if (error) {
@@ -109,10 +153,14 @@ module.exports = {
     await user.save();
 
     const authToken = user.generateAuthToken();
+    const rToken = user.generateRefreshToken();
+    await Session.deleteMany({ user: user._id });
+    await Session.create({ refreshToken: rToken });
 
     return {
       email: user.email,
       token: authToken,
+      refreshToken: rToken,
     };
   },
 };

@@ -2,6 +2,7 @@ pipeline {
   agent any
   options {
     buildDiscarder(logRotator(numToKeepStr: '5'))
+    disableConcurrentBuilds()
   }
   parameters {
     string(name: 'IMAGE_REPO_NAME', defaultValue: '', description: 'The base image name')
@@ -13,11 +14,12 @@ pipeline {
     BRANCH_NAME = sh(returnStdout: true, script: 'git rev-parse --abbrev-ref HEAD').trim()
     COMMIT_TAG = sh(returnStdout: true, script: 'git rev-parse HEAD').trim().take(7)
     BUILD_IMAGE_REPO_TAG = "${params.IMAGE_REPO_NAME}:${env.BUILD_TAG}"
+    PKG_VERSION = "${readJSON(file: 'package.json').version}"
   }
   stages {
     stage ('Start') {
       steps {
-        slackSend (color: 'warning', message: "Job started ${env.JOB_NAME} ${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>)")
+        slackSend (color: 'warning', message: "Job started ${env.JOB_NAME} $PKG_VERSION (<${env.BUILD_URL}|Open>)")
       }
     }
     stage('Build') {
@@ -43,13 +45,13 @@ pipeline {
 
     stage('Integration tests') {
       steps {
-        sh "docker run --name expressTestDb -d mongo:4"
+        sh "docker run --name expressTestDb -d mongo"
         retry(1){
           sh '''
             docker run --link=expressTestDb:db --rm \
               -e \"JWT_PRIVATE_KEY=testSecret\" \
               -e \"JWT_ISSUER=https://your.issuer.com\" \
-              -e \"MONGO_CONNECTION=mongodb://db:27017/expressjs_tests\" \
+              -e \"MONGO_CONNECTION=mongodb://db/expressjs_tests\" \
               -u node \
               $BUILD_IMAGE_REPO_TAG-test
               '''
@@ -69,11 +71,8 @@ pipeline {
     }
 
     stage('Audit and scans') {
-      environment {
-        MICROSCANNER_TOKEN = credentials('microscanner-token')
-      }
       steps {
-        sh 'docker build --build-arg MICROSCANNER_TOKEN -t $BUILD_IMAGE_REPO_TAG-audit --target audit .'
+        sh 'docker build -t $BUILD_IMAGE_REPO_TAG-audit --target audit .'
       }
       post{
           success{
@@ -85,10 +84,10 @@ pipeline {
     stage('Build production image') {
       steps {
         sh "docker build -t $BUILD_IMAGE_REPO_TAG ."
-        sh "docker tag $BUILD_IMAGE_REPO_TAG ${params.IMAGE_REPO_NAME}:$COMMIT_TAG"
-        sh "docker tag $BUILD_IMAGE_REPO_TAG ${params.IMAGE_REPO_NAME}:${readJSON(file: 'package.json').version}"
-        sh "docker tag $BUILD_IMAGE_REPO_TAG ${params.IMAGE_REPO_NAME}:${params.LATEST_BUILD_TAG}"
-        sh "docker tag $BUILD_IMAGE_REPO_TAG ${params.IMAGE_REPO_NAME}:$BRANCH_NAME-latest"
+        sh "docker tag $BUILD_IMAGE_REPO_TAG ${IMAGE_REPO_NAME}:$COMMIT_TAG"
+        sh "docker tag $BUILD_IMAGE_REPO_TAG ${IMAGE_REPO_NAME}:$PKG_VERSION"
+        sh "docker tag $BUILD_IMAGE_REPO_TAG ${IMAGE_REPO_NAME}:${LATEST_BUILD_TAG}"
+        sh "docker tag $BUILD_IMAGE_REPO_TAG ${IMAGE_REPO_NAME}:$BRANCH_NAME-latest"
       }
       post{
           success{
@@ -109,10 +108,10 @@ pipeline {
       steps {
         sh "echo $REGISTRY_CREDS_PSW | docker login -u $REGISTRY_CREDS_USR --password-stdin $REGISTRY_NAME"
         sh "docker push $BUILD_IMAGE_REPO_TAG"
-        sh "docker push ${params.IMAGE_REPO_NAME}:$COMMIT_TAG"
-        sh "docker push ${params.IMAGE_REPO_NAME}:${readJSON(file: 'package.json').version}"
-        sh "docker push ${params.IMAGE_REPO_NAME}:${params.LATEST_BUILD_TAG}"
-        sh "docker push ${params.IMAGE_REPO_NAME}:$BRANCH_NAME-latest"
+        sh "docker push ${IMAGE_REPO_NAME}:$COMMIT_TAG"
+        sh "docker push ${IMAGE_REPO_NAME}:$PKG_VERSION"
+        sh "docker push ${IMAGE_REPO_NAME}:${LATEST_BUILD_TAG}"
+        sh "docker push ${IMAGE_REPO_NAME}:$BRANCH_NAME-latest"
       }
       post{
           always {
@@ -121,6 +120,18 @@ pipeline {
           success{
               echo "====++++Pushed++++===="
           }
+      }
+    }
+
+    stage ("Cleaning") {
+      when {
+        expression {
+          env.BUILD_NUMBER.toBigInteger().mod(5) == 0
+        }
+      }
+      steps {
+        echo "Cleaning workspace"
+        deleteDir()
       }
     }
   }

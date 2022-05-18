@@ -1,4 +1,5 @@
 const { User, validate } = require("../models/User");
+const { Session } = require("../models/Session");
 const UserExistsError = require("../../shared/errors/UserError/UserExistsError");
 const InvalidDataError = require("../../shared/errors/InvalidDataError");
 
@@ -20,7 +21,17 @@ module.exports = {
     await user.save();
 
     const token = user.generateAuthToken();
+    const rToken = user.generateRefreshToken();
+    await Session.deleteMany({ user: user._id });
+    await Session.create({ refreshToken: rToken, user: user._id });
 
-    return { token, email: user.email };
+    return { token, email: user.email, refreshToken: rToken };
+  },
+  getMe: (user) => {
+    return {
+      email: user.email,
+      role: user.role,
+      createdAt: user.createdAt,
+    };
   },
 };

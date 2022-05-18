@@ -1,49 +1,44 @@
-const jwt = require("jsonwebtoken");
+const { verify: jwtVerify } = require("../shared/jwt");
 const { User } = require("../api/models/User");
-const APIError = require("../shared/errors/APIError");
-const NotAuthorizedError = require("../shared/errors/UserError/UserNotAuthorizedError");
 const MissingTokenError = require("../shared/errors/AuthorizationError/MissingTokenError");
 const InvalidTokenError = require("../shared/errors/AuthorizationError/InvalidTokenError");
 const logger = require("../config/logger");
+const InvalidDataError = require("../shared/errors/InvalidDataError");
 
-const { JWT_PRIVATE_KEY, JWT_ISSUER } = process.env;
+const { JWT_PRIVATE_KEY } = process.env;
+const {
+  accessToken: { name: aTokenName },
+} = require("../config/config");
 
 const auth = async (req, res, next) => {
-  let token = req.header("Authorization");
   try {
+    const header = req.header(aTokenName);
+    const token = header && header.replace("Bearer ", "");
     if (!token) {
       throw new MissingTokenError();
     }
 
-    token = token.replace("Bearer ", "");
-    const data = jwt.verify(token, JWT_PRIVATE_KEY, {
-      algotithms: ["HS256"],
-      issuer: [JWT_ISSUER],
-    });
-    const user = await User.findOne({ _id: data._id });
-    if (!user) {
-      throw new NotAuthorizedError();
+    const { data, expired, valid } = jwtVerify(token, JWT_PRIVATE_KEY);
+    if (expired || !valid) {
+      throw new InvalidTokenError();
     }
+
+    const user = await User.findOne({ _id: data.user });
+    if (!user) {
+      throw new InvalidDataError();
+    }
+
     req.user = user;
     req.token = token;
-    logger.info("USER_AUTHORIZED", { email: user.email });
+    logger.info("USER_AUTHORIZED", { user: user.email });
     next();
   } catch (error) {
-    logger.info("AUTHORIZATION_FAILED", {
-      errorName: error.name,
-      errorMessage: error.message,
-    });
-    if (
-      error instanceof NotAuthorizedError ||
-      error instanceof MissingTokenError
-    ) {
-      res.status(401).send({ type: error.type, message: error.message });
-    } else if (error instanceof APIError) {
+    if (error instanceof MissingTokenError) {
+      logger.info("AUTHORIZATION_FAILED");
       res.status(401).send({ type: error.type, message: error.message });
     } else {
-      logger.error("AUTHORIZATION_UNKNOWN_ERROR", error);
-      const err = new InvalidTokenError();
-      res.status(401).send({ type: err.type, message: err.message });
+      logger.info("AUTHORIZATION_FAILED");
+      res.status(403).send({ type: error.type, message: error.message });
     }
   }
 };

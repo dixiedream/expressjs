@@ -1,7 +1,11 @@
 const request = require("supertest");
 const mongoose = require("mongoose");
 const { User } = require("../../src/api/models/User");
+const { Session } = require("../../src/api/models/Session");
 const server = require("../../app");
+const {
+  refreshToken: { name: rTokenName },
+} = require("../../src/config/config");
 
 const endpoint = "/api/auth";
 
@@ -21,6 +25,7 @@ describe(endpoint, () => {
 
   afterEach(async () => {
     await User.deleteMany({});
+    await Session.deleteMany({});
   });
 
   afterAll(async () => {
@@ -117,6 +122,26 @@ describe(endpoint, () => {
       return request(server).post(endpoint).send({ email, password });
     };
 
+    it("should set the refresh token cookie as httpOnly if valid", async () => {
+      email = "johndoe@anonymous.com";
+      password = "rememberthefifth";
+      await new User({ email, password }).save();
+      const res = await exec();
+      const setCookie = res.headers["set-cookie"][0];
+      expect(setCookie.search("HttpOnly")).not.toBe(-1);
+    });
+
+    it("should set the refresh token cookie if valid", async () => {
+      email = "johndoe@anonymous.com";
+      password = "rememberthefifth";
+      const user = await new User({ email, password }).save();
+      const token = user.generateRefreshToken();
+      const res = await exec();
+      const setCookie = res.headers["set-cookie"][0];
+      const rToken = setCookie.split(";")[0].split("=")[1];
+      expect(rToken).toBe(token);
+    });
+
     it("should return the access token if valid", async () => {
       email = "johndoe@anonymous.com";
       password = "rememberthefifth";
@@ -124,8 +149,15 @@ describe(endpoint, () => {
       const token = user.generateAuthToken();
 
       const res = await exec();
-      expect(res.status).toBe(200);
       expect(res.body).toHaveProperty("token", token);
+    });
+
+    it("should return 200 if valid", async () => {
+      email = "johndoe@anonymous.com";
+      password = "rememberthefifth";
+      await new User({ email, password }).save();
+      const res = await exec();
+      expect(res.status).toBe(200);
     });
 
     it("should return 400 if password is not valid", async () => {
@@ -153,6 +185,85 @@ describe(endpoint, () => {
 
       const res = await exec();
       expect(res.status).toBe(400);
+    });
+  });
+
+  describe("DELETE /", () => {
+    const exec = async () => {
+      return request(server).delete(endpoint).send();
+    };
+
+    it("should clear refresh_token cookie if valid", async () => {
+      const res = await exec();
+      const setCookie = res.headers["set-cookie"][0];
+      const rToken = setCookie.split(";")[0].split("=")[1];
+      expect(rToken).toBe("");
+    });
+
+    it("should return 204 if valid", async () => {
+      const res = await exec();
+      expect(res.status).toBe(204);
+    });
+  });
+
+  describe("POST /refresh", () => {
+    let cookie;
+
+    const exec = async () => {
+      return request(server)
+        .post(`${endpoint}/refresh`)
+        .set("Cookie", [cookie])
+        .send();
+    };
+
+    it("should refresh the access token if valid", async () => {
+      const user = await new User({
+        email: "abc@abc.com",
+        password: "secretPassword",
+      }).save();
+
+      const refreshToken = user.generateRefreshToken();
+      await Session.create({ refreshToken, user: user._id });
+      cookie = `${rTokenName}=${refreshToken}`;
+      const token = user.generateAuthToken("1ms");
+      const res = await exec();
+      expect(res.body.token).not.toBe(token);
+    });
+
+    it("should return 403 if token not been found", async () => {
+      const user = await new User({
+        email: "abc@abc.com",
+        password: "secretPassword",
+      });
+      const refreshToken = user.generateRefreshToken();
+      cookie = `${rTokenName}=${refreshToken}`;
+      const res = await exec();
+      expect(res.status).toBe(403);
+    });
+
+    it("should return 200 if token is valid", async () => {
+      const user = await new User({
+        email: "abc@abc.com",
+        password: "secretPassword",
+      }).save();
+
+      const refreshToken = user.generateRefreshToken();
+      await Session.create({ refreshToken, user: user._id });
+      cookie = `${rTokenName}=${refreshToken}`;
+      const res = await exec();
+      expect(res.status).toBe(200);
+    });
+
+    it("should return 403 if token is not valid", async () => {
+      cookie = `${rTokenName}=pippo`;
+      const res = await exec();
+      expect(res.status).toBe(403);
+    });
+
+    it("should return 401 if no token is provided", async () => {
+      cookie = "";
+      const res = await exec();
+      expect(res.status).toBe(401);
     });
   });
 });

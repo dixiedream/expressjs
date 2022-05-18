@@ -1,6 +1,5 @@
 # Node base image
 FROM node:lts-alpine AS base
-LABEL org.opencontainers.image.authors=alessandro.lucarini@smanapp.com
 LABEL org.opencontainers.image.title="ExpressJs boilerplate"
 LABEL org.opencontainers.image.licenses=MIT
 EXPOSE 3000
@@ -36,6 +35,7 @@ CMD [ "nodemon", "--inspect=0.0.0.0", "./bin/www"]
 FROM dev AS test
 ENV NODE_ENV=development
 ENV JWT_PRIVATE_KEY=notSoSecretPassword
+ENV JWT_REFRESH_PRIVATE_KEY=notSoSecretPassword
 ENV JWT_ISSUER=https://dummy.issuer.com
 COPY . .
 RUN eslint .

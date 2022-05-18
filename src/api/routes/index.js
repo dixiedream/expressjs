@@ -1,6 +1,4 @@
-const express = require("express");
 const error = require("../../middleware/error");
-const profiler = require("../../middleware/profiler");
 
 /**
  * Your routes loading goes here
@@ -8,12 +6,7 @@ const profiler = require("../../middleware/profiler");
 const auth = require("./auth");
 const users = require("./users");
 
-// Setup swagger route for displaying docs
-
 module.exports = (app) => {
-  app.use(profiler);
-  app.use(express.json({ limit: "1mb" })); // Change limit body size
-
   /**
    * Healthcheck route
    */
