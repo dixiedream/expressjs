@@ -117,6 +117,22 @@ describe(endpoint, () => {
       return request(server).post(endpoint).send({ email, password });
     };
 
+    it("should set the refresh token cookie if valid", async () => {
+      email = "johndoe@anonymous.com";
+      password = "rememberthefifth";
+      const user = await new User({ email, password }).save();
+      const token = user.generateRefreshToken();
+      const res = await exec();
+      expect(res.status).toBe(200);
+      const setCookie = res.headers["set-cookie"][0];
+      console.log(setCookie);
+      const pattern = /refresh_token=(.+);\b\/gm/;
+      console.log(setCookie.match(pattern));
+      // const rToken = setCookie[0].split(";")[0].split("=")[1];
+      // console.log(rToken);
+      expect(res.cookie).toHaveProperty("refresh_token", token);
+    });
+
     it("should return the access token if valid", async () => {
       email = "johndoe@anonymous.com";
       password = "rememberthefifth";
