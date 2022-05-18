@@ -61,6 +61,28 @@ describe(endpoint, () => {
   });
 
   describe("GET /me", () => {
+    it("should return 200 if token is still valid", async () => {
+      const user = await new User({
+        email: "johndoe@anonymous.com",
+        password: "rememberthefifth",
+      }).save();
+
+      const token = user.generateAuthToken();
+      let res = await request(server)
+        .get(`${endpoint}/me`)
+        .set("Authorization", `Bearer ${token}`)
+        .send();
+
+      expect(res.status).toBe(200);
+
+      res = await request(server)
+        .get(`${endpoint}/me`)
+        .set("Authorization", `Bearer ${token}`)
+        .send();
+
+      expect(res.status).toBe(200);
+    });
+
     it("should return 200 if logged in", async () => {
       const user = await new User({
         email: "johndoe@anonymous.com",
