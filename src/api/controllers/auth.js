@@ -105,23 +105,19 @@ module.exports = {
   refresh: async (cookies) => {
     const token = cookies.refresh_token;
     if (!token) {
-      throw new MissingTokenError(); // 401
+      throw new MissingTokenError();
     }
     const { data, valid } = jwtVerify(token, JWT_REFRESH_PRIVATE_KEY);
     if (!valid) {
-      throw new InvalidTokenError("non valido"); // 403
+      throw new InvalidTokenError();
     }
 
     const session = await Session.findOne({ refreshToken: token });
     if (!session) {
-      throw new InvalidTokenError("sessione non trovata"); // 403
+      throw new InvalidTokenError();
     }
 
     let { user } = data;
-    if (user !== session.user.toString()) {
-      throw new InvalidTokenError("Utenti diversi"); // 403
-    }
-
     user = await User.findOne({
       _id: user,
     });

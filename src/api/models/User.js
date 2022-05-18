@@ -62,12 +62,16 @@ UserSchema.methods.getResetPasswordToken = function getResetPasswordToken() {
   return token;
 };
 
-UserSchema.methods.generateAuthToken = function generateAuthToken() {
-  return jwtSign({ user: this._id }, JWT_PRIVATE_KEY, aTokenExpiration);
+UserSchema.methods.generateAuthToken = function generateAuthToken(expiration) {
+  const exp = expiration || aTokenExpiration;
+  return jwtSign({ user: this._id }, JWT_PRIVATE_KEY, exp);
 };
 
-UserSchema.methods.generateRefreshToken = function generateRefreshToken() {
-  return jwtSign({ user: this._id }, JWT_REFRESH_PRIVATE_KEY, rTokenExpiration);
+UserSchema.methods.generateRefreshToken = function generateRefreshToken(
+  expiration
+) {
+  const exp = expiration || rTokenExpiration;
+  return jwtSign({ user: this._id }, JWT_REFRESH_PRIVATE_KEY, exp);
 };
 
 /**

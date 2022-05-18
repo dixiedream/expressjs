@@ -68,7 +68,6 @@ describe(endpoint, () => {
       }).save();
 
       const token = user.generateAuthToken();
-
       const res = await request(server)
         .get(`${endpoint}/me`)
         .set("Authorization", `Bearer ${token}`)
@@ -77,9 +76,40 @@ describe(endpoint, () => {
       expect(res.status).toBe(200);
     });
 
-    it("should return 401 is user is not logged in", async () => {
-      const res = await request(server).get(`${endpoint}/me`);
+    it("should return 403 if token is invalid", async () => {
+      const user = await new User({
+        email: "johndoe@anonymous.com",
+        password: "rememberthefifth",
+      }).save();
 
+      const token = user.generateAuthToken("1ms");
+
+      const res = await request(server)
+        .get(`${endpoint}/me`)
+        .set("Authorization", `Bearer a${token}Z`)
+        .send();
+
+      expect(res.status).toBe(403);
+    });
+
+    it("should return 403 if token is expired", async () => {
+      const user = await new User({
+        email: "johndoe@anonymous.com",
+        password: "rememberthefifth",
+      }).save();
+
+      const token = user.generateAuthToken("1ms");
+
+      const res = await request(server)
+        .get(`${endpoint}/me`)
+        .set("Authorization", `Bearer ${token}`)
+        .send();
+
+      expect(res.status).toBe(403);
+    });
+
+    it("should return 401 if user is no token is provided", async () => {
+      const res = await request(server).get(`${endpoint}/me`);
       expect(res.status).toBe(401);
     });
   });
