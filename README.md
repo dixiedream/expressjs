@@ -26,13 +26,13 @@ Follow [Airbnb style guide](https://github.com/airbnb/javascript). [ESLint](http
 - Install [Docker](https://docs.docker.com/install/)
 - Create your own `.env` file based on `default.env`
 - For development it'll be necessary to run `docker-compose run backend npm i` for installing dependencies on host machine after the initial build failed.
-- Run `docker-compose up`
+- Run `docker-compose up` for a dev environment. The API endpoint is `localhost:3000/api`
 - For debugging use the handy [Chrome DevTools](https://chromedevtools.github.io/devtools-protocol/)
 - For local env testing `sh devtests.sh`
 
 ## Extra
 
-To connect with a GUI to the dev mongo db instance use [MongoDb Compass](https://www.mongodb.com/download-center/compass)
+To connect with a GUI to the dev mongo db instance use [MongoDb Express](https://www.mongodb.com/download-center/compass) provided at `localhost:8081`
 
 ## Contributing
 

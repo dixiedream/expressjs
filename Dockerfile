@@ -1,7 +1,5 @@
 # Node base image
 FROM node:lts-alpine AS base
-LABEL org.opencontainers.image.title="ExpressJs boilerplate"
-LABEL org.opencontainers.image.licenses=MIT
 EXPOSE 3000
 ENV TZ=Europe/Rome
 ENV NODE_ENV=production
