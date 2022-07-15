@@ -8,6 +8,7 @@ const ROLES = require("../../config/roles");
 const {
   accessToken: { expiresIn: aTokenExpiration },
   refreshToken: { expiresIn: rTokenExpiration },
+  passwordStrongness,
 } = require("../../config/config");
 
 const { JWT_PRIVATE_KEY, JWT_REFRESH_PRIVATE_KEY } = process.env;
@@ -26,6 +27,7 @@ const UserSchema = new Schema(
     },
     role: {
       type: Number,
+      enum: Object.values(ROLES),
       default: ROLES.USER,
     },
     resetPasswordToken: String,
@@ -99,8 +101,17 @@ UserSchema.statics.findOneByResetToken = async function findOneByResetToken(
 exports.User = mongoose.model("User", UserSchema);
 exports.validate = (user) => {
   const joiModel = Joi.object({
-    email: Joi.string().min(5).max(255).required().email(),
-    password: Joi.string().min(5).max(255).required(),
+    email: Joi.string()
+      .min(5)
+      .max(255)
+      .required()
+      .email()
+      .error(new Error("email.invalid")),
+    password: Joi.string()
+      .regex(passwordStrongness)
+      .required()
+      .error(new Error("password.invalid")),
+    role: Joi.number().error(new Error("role.invalid")),
   });
 
   return joiModel.validate(user);

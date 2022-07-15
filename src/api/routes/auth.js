@@ -32,7 +32,7 @@ router.post("/", (req, res) => {
       if (error instanceof APIError) {
         const { type, message } = error;
         logger.info("AUTHENTICATION_FAILED", { email: req.body.email, type });
-        res.status(400).send({ type, message });
+        res.status(400).send({ type, message: req.t(message) });
       } else {
         logger.error("AUTHENTICATION_FAILED", error);
         res.status(500).send();
@@ -70,15 +70,16 @@ router.post("/refresh", (req, res) => {
   auth
     .refresh(req.cookies)
     .then((data) => {
+      logger.info("AUTH_REFRESH_SUCCEEDED");
       res.status(200).send(data);
     })
     .catch((error) => {
       if (error instanceof MissingTokenError) {
         logger.info("AUTH_REFRESH_FAILED");
-        res.status(401).send({ message: error.message });
+        res.status(401).send({ message: req.t(error.message) });
       } else if (error instanceof InvalidTokenError) {
         logger.info("AUTH_REFRESH_FAILED");
-        res.status(403).send({ message: error.message });
+        res.status(403).send({ message: req.t(error.message) });
       } else {
         logger.error("AUTH_REFRESH_FAILED", error);
         res.status(500).send();
@@ -92,7 +93,7 @@ router.post("/refresh", (req, res) => {
 router.post("/forgotPassword", (req, res) => {
   logger.info("FORGOT_PASSWORD_REQUEST", { body: req.body });
   auth
-    .forgotPassword(req.body)
+    .forgotPassword(req.body, req.t)
     .then((message) => {
       logger.info("FORGOT_PASSWORD_SUCCEDED", { email: req.body.email });
       res.status(200).send(message);
@@ -101,7 +102,7 @@ router.post("/forgotPassword", (req, res) => {
       logger.error("FORGOT_PASSWORD_FAILED", { body: req.body, err });
       if (err instanceof APIError) {
         const { type, message } = err;
-        res.status(400).send({ type, message });
+        res.status(400).send({ type, message: req.t(message) });
       } else {
         res.status(500).send();
       }
@@ -132,7 +133,7 @@ router.patch("/resetPassword/:token", (req, res) => {
       logger.error("RESET_PASSWORD_FAILED", { err });
       if (err instanceof APIError) {
         const { type, message } = err;
-        res.status(400).send({ type, message });
+        res.status(400).send({ type, message: req.t(message) });
       } else {
         res.status(500).send();
       }

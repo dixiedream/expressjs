@@ -1,0 +1,37 @@
+{
+  "500": "Something failed",
+  "email": {
+    "invalid": "Invalid email format"
+  },
+  "error": {
+    "authenticationFailed": "Invalid email or password",
+    "invalidData": "Invalid data",
+    "invalidToken": "Invalid token",
+    "missingToken": "No token provided",
+    "notFound": "Not found",
+    "resetTokenExpired": "Reset token is expired",
+    "userExists": "User exists",
+    "userNotAuthorized": "User not authorized"
+  },
+  "forgotPassword": {
+    "success": "Email sent with reset link",
+    "mail": {
+      "message": "You're receiving this email because you (or someone else) has requested the reset of a password. Please click on this link to proceed:",
+      "subject": "Your reset password link"
+    }
+  },
+  "healthCheckRoute": "I'm happy and healthy",
+  "invalidObjectId": "Invalid ID",
+  "oldPassword": {
+    "invalid": "Old password not valid"
+  },
+  "password": {
+    "invalid": "Password must contain at least one upper case alphabet, one digit, one special character. Minimum eight in length"
+  },
+  "resetPassword": {
+    "missingTokenError": "Missing data"
+  },
+  "role": {
+    "invalid": "Invalid role provided"
+  }
+}

@@ -21,8 +21,6 @@ Follow [Airbnb style guide](https://github.com/airbnb/javascript). [ESLint](http
 
 ## Setup
 
-- Install [VSCode](https://code.visualstudio.com/) IDE
-- Install VSCode extensions ESlint and Prettier
 - Install [Docker](https://docs.docker.com/install/)
 - Create your own `.env` file based on `default.env`
 - For development it'll be necessary to run `docker-compose run backend npm i` for installing dependencies on host machine after the initial build failed.

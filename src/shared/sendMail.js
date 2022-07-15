@@ -18,12 +18,27 @@ const sendMail = async ({ email, subject, text }) => {
     from: `"${FROM_NAME}" <${FROM_EMAIL}>`,
     to: email,
     subject,
-    text,
-    html: `<b>${text}</b>`,
+    text: text.replace(/(<([^>]+)>)/gi, ""),
+    html: text,
   };
 
   if (NODE_ENV === "production") {
-    // Setup your library
+    const transporter = nodemailer.createTransport({
+      host: SMTP_HOST,
+      port: SMTP_PORT,
+      secure: SMTP_PORT === 465,
+      auth: {
+        user: SMTP_USERNAME,
+        pass: SMTP_PASSWORD,
+      },
+    });
+
+    try {
+      const info = await transporter.sendMail(message);
+      logger.info("SEND_MESSAGE_SUCCEEDED", { messageId: info.messageId });
+    } catch (err) {
+      logger.error("SEND_MESSAGE_FAILED", { err: err.toString() });
+    }
   } else {
     const transporter = nodemailer.createTransport({
       host: SMTP_HOST,

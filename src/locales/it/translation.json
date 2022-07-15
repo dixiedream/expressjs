@@ -1,0 +1,37 @@
+{
+  "500": "Si è verificato un problema",
+  "email": {
+    "invalid": "Formato mail non valido"
+  },
+  "error": {
+    "authenticationFailed": "Email o password errata",
+    "invalidData": "Dati non validi",
+    "invalidToken": "Token non valido",
+    "missingToken": "Nessun token ricevuto",
+    "notFound": "Non trovato",
+    "resetTokenExpired": "Reset token scaduto",
+    "userExists": "Utente già esistente",
+    "userNotAuthorized": "Non autorizzato"
+  },
+  "forgotPassword": {
+    "success": "Email con reset link inviata",
+    "mail": {
+      "message": "Stai ricevendo questa mail perché hai richiesto (o qualcuno per te) di reimpostare la password. Clicca su questo link per procedere:",
+      "subject": "Reimposta la tua password"
+    }
+  },
+  "healthCheckRoute": "Sono sano e felice",
+  "invalidObjectId": "Id non valido",
+  "oldPassword": {
+    "invalid": "Password errata"
+  },
+  "password": {
+    "invalid": "La password deve contenere almeno una maiuscola, un numero e un carattere speciale"
+  },
+  "resetPassword": {
+    "missingTokenError": "Dati mancanti"
+  },
+  "role": {
+    "invalid": "Ruolo non valido"
+  }
+}
