@@ -11,7 +11,7 @@ module.exports = (app) => {
    * Healthcheck route
    */
   app.get("/healthz", (req, res) => {
-    res.status(200).send("I'm happy and healthy\n");
+    res.status(200).send(`${req.t("healthCheckRoute")}\n`);
   });
 
   /**

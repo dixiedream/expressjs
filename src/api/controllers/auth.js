@@ -10,17 +10,25 @@ const MissingTokenError = require("../../shared/errors/AuthorizationError/Missin
 const { verify: jwtVerify } = require("../../shared/jwt");
 const InvalidTokenError = require("../../shared/errors/AuthorizationError/InvalidTokenError");
 
-const { JWT_REFRESH_PRIVATE_KEY } = process.env;
+const { passwordStrongness } = require("../../config/config");
+
+const { JWT_REFRESH_PRIVATE_KEY, RESET_PASSWORD_URL } = process.env;
 
 /**
  * Validates login data, it's different from the user validate functions
  * because you may want to pass different data
- * @todo To implement password complications
  */
 function validate(body) {
   const joiModel = Joi.object({
-    email: Joi.string().min(5).max(255).required().email(),
-    password: Joi.string().min(5).max(255).required(),
+    email: Joi.string()
+      .min(5)
+      .max(255)
+      .required()
+      .email()
+      .error(new Error("email.invalid")),
+    password: Joi.string()
+      .regex(passwordStrongness)
+      .error(new Error("password.invalid")),
   });
 
   return joiModel.validate(body);
@@ -28,7 +36,12 @@ function validate(body) {
 
 function validateForgotPassword(body) {
   const joiModel = Joi.object({
-    email: Joi.string().min(5).max(255).required().email(),
+    email: Joi.string()
+      .min(5)
+      .max(255)
+      .required()
+      .email()
+      .error(new Error("email.invalid")),
   });
 
   return joiModel.validate(body);
@@ -36,7 +49,10 @@ function validateForgotPassword(body) {
 
 function validateResetPassword(body) {
   const joiModel = Joi.object({
-    password: Joi.string().min(5).max(255).required(),
+    password: Joi.string()
+      .regex(passwordStrongness)
+      .required()
+      .error(new Error("password.invalid")),
   });
 
   return joiModel.validate(body);
@@ -46,7 +62,7 @@ module.exports = {
   authenticate: async (body) => {
     const { error } = validate(body);
     if (error) {
-      throw new InvalidDataError(error.details[0].message);
+      throw new InvalidDataError(error.message);
     }
 
     const user = await User.findOne({ email: body.email });
@@ -64,10 +80,10 @@ module.exports = {
 
     return { token, refreshToken: rToken };
   },
-  forgotPassword: async (body) => {
+  forgotPassword: async (body, t) => {
     const { error } = validateForgotPassword(body);
     if (error) {
-      throw new InvalidDataError(error.details[0].message);
+      throw new InvalidDataError(error.message);
     }
 
     const user = await User.findOne({ email: body.email });
@@ -78,13 +94,15 @@ module.exports = {
     const resetToken = user.getResetPasswordToken();
     await user.save();
 
-    const resetURL = `https://yourdomain/reset-password/${resetToken}`;
-    const message = `You're receiving this email because you (or someone else) has requested the reset of a password. Please click on this link to proceed: \n\n ${resetURL}`;
+    const resetURL = `${RESET_PASSWORD_URL}/${resetToken}`;
+    const message = `${t(
+      "forgotPassword.mail.message"
+    )}<br><a href='${resetURL}'>${resetURL}</a>`;
 
     try {
       await sendMail({
         email: user.email,
-        subject: "Your reset password link",
+        subject: t("forgotPassword.mail.subject"),
         text: message,
       });
     } catch (err) {
@@ -94,7 +112,7 @@ module.exports = {
       throw err;
     }
 
-    return { message: "Email sent with reset link" };
+    return { message: t("forgotPassword.success") };
   },
   logout: async (cookies) => {
     const token = cookies.refresh_token;
@@ -134,11 +152,11 @@ module.exports = {
   resetPassword: async (body, token) => {
     const { error } = validateResetPassword(body);
     if (error) {
-      throw new InvalidDataError(error.details[0].message);
+      throw new InvalidDataError(error.message);
     }
 
     if (!token) {
-      throw new InvalidDataError("Missing data");
+      throw new InvalidDataError("resetPassword.missingTokenError");
     }
 
     const user = await User.findOneByResetToken(token);
@@ -155,7 +173,7 @@ module.exports = {
     const authToken = user.generateAuthToken();
     const rToken = user.generateRefreshToken();
     await Session.deleteMany({ user: user._id });
-    await Session.create({ refreshToken: rToken });
+    await Session.create({ refreshToken: rToken, user: user._id });
 
     return {
       email: user.email,

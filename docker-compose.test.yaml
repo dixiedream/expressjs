@@ -7,7 +7,7 @@ services:
       context: ./
       target: test
     image: expressjs-tests
-    command: jest ./tests/* --colors --runInBand --watchAll
+    command: jest ./tests/* --colors --runInBand --watchAll #--verbose
     environment:
       - JWT_PRIVATE_KEY=testSecret
       - JWT_REFRESH_PRIVATE_KEY=testSecret
@@ -24,4 +24,3 @@ services:
     image: mongo
     healthcheck:
       test: '[ `echo ''db.runCommand("ping").ok'' | mongo localhost/expressmongo_tests --quiet` ] && echo 0 || echo 1'
-    

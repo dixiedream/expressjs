@@ -13,6 +13,7 @@ services:
       - JWT_PRIVATE_KEY
       - JWT_REFRESH_PRIVATE_KEY
       - JWT_ISSUER
+      - RESET_PASSWORD_URL=localhost:8080/reset-password
       - SMTP_HOST
       - SMTP_PORT
       - SMTP_USERNAME

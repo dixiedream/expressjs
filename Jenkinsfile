@@ -45,10 +45,10 @@ pipeline {
 
     stage('Integration tests') {
       steps {
-        sh "docker run --name expressTestDb -d mongo"
+        sh "docker run --name testDb -d mongo"
         retry(1){
           sh '''
-            docker run --link=expressTestDb:db --rm \
+            docker run --link=testDb:db --rm \
               -e \"JWT_PRIVATE_KEY=testSecret\" \
               -e \"JWT_ISSUER=https://your.issuer.com\" \
               -e \"MONGO_CONNECTION=mongodb://db/expressjs_tests\" \
@@ -59,7 +59,7 @@ pipeline {
       }
       post{
           always{
-            sh "docker rm --force expressTestDb"
+            sh "docker rm --force testDb"
           }
           success{
               echo "====++++Tests passed++++===="
