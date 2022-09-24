@@ -1,4 +1,4 @@
-const logger = require("../config/logger");
+const logger = require('../config/logger')
 
 /**
  * Error-handling middleware always takes four arguments.
@@ -8,7 +8,7 @@ const logger = require("../config/logger");
  */
 // eslint-disable-next-line no-unused-vars
 module.exports = (err, req, res, next) => {
-  logger.error(err.message, err);
+  logger.error(err.message, err)
 
-  res.status(500).send({ message: "Something failed" });
-};
+  res.status(500).send({ message: 'Something failed' })
+}

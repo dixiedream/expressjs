@@ -1,11 +1,11 @@
-const mongoose = require("mongoose");
-const logger = require("./logger");
+const mongoose = require('mongoose')
+const logger = require('./logger')
 
-const { NODE_ENV, MONGO_CONNECTION } = process.env;
+const { NODE_ENV, MONGO_CONNECTION } = process.env
 
-const mongoConnection = MONGO_CONNECTION || "mongodb://db:27017/expressmongo";
+const mongoConnection = MONGO_CONNECTION || 'mongodb://db:27017/expressmongo'
 
-const autoIndex = NODE_ENV === "development";
+const autoIndex = NODE_ENV === 'development'
 
 // Db connection
 module.exports = () => {
@@ -13,16 +13,16 @@ module.exports = () => {
     .connect(mongoConnection, {
       autoIndex,
       useNewUrlParser: true,
-      useUnifiedTopology: true,
+      useUnifiedTopology: true
     })
     .then(() => {
-      if (NODE_ENV === "development") {
-        logger.info("DB_CONNECTED", { dbConnection: mongoConnection });
+      if (NODE_ENV === 'development') {
+        logger.info('DB_CONNECTED', { dbConnection: mongoConnection })
       } else {
-        logger.info("DB_CONNECTED");
+        logger.info('DB_CONNECTED')
       }
     })
     .catch((err) => {
-      logger.error("DB_CONNECTION_FAILED", err);
-    });
-};
+      logger.error('DB_CONNECTION_FAILED', err)
+    })
+}

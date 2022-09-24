@@ -1,7 +1,7 @@
-const APIError = require("./APIError");
+const APIError = require('./APIError')
 
 module.exports = class NotFoundError extends APIError {
-  constructor(message) {
-    super(message || "error.notFound");
+  constructor (message) {
+    super(message || 'error.notFound')
   }
-};
+}

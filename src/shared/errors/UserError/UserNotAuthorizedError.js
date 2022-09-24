@@ -1,7 +1,7 @@
-const APIError = require("../APIError");
+const APIError = require('../APIError')
 
 module.exports = class UserNotAuthorizedError extends APIError {
-  constructor(message) {
-    super(message || "error.userNotAuthorized");
+  constructor (message) {
+    super(message || 'error.userNotAuthorized')
   }
-};
+}
