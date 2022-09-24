@@ -23,20 +23,21 @@ CMD [ "node", "./bin/www" ]
 # Image for development
 FROM base AS dev
 ENV NODE_ENV=development
-RUN npm config list
-RUN npm install \
-  && npm cache clean --force
 USER node
 CMD [ "nodemon", "--inspect=0.0.0.0", "./bin/www"]
 
 # Testing image
 FROM dev AS test
+USER root
 ENV NODE_ENV=development
 ENV JWT_PRIVATE_KEY=notSoSecretPassword
 ENV JWT_REFRESH_PRIVATE_KEY=notSoSecretPassword
 ENV JWT_ISSUER=https://dummy.issuer.com
 COPY . .
-RUN eslint .
+RUN npm config list
+RUN npm install \
+  && npm cache clean --force
+RUN standard
 RUN jest ./tests/unit/*
 # To run with docker-compose
 CMD [ "jest", "./tests/integration/*", "-b", "--ci", "--coverage", "--maxWorkers=1" ]

@@ -1,7 +1,7 @@
-const APIError = require("../APIError");
+const APIError = require('../APIError')
 
 module.exports = class ResetTokenExpiredError extends APIError {
-  constructor(message) {
-    super(message || "error.resetTokenExpired");
+  constructor (message) {
+    super(message || 'error.resetTokenExpired')
   }
-};
+}
