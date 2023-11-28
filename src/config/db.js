@@ -7,6 +7,8 @@ const mongoConnection = MONGO_CONNECTION || 'mongodb://db:27017/expressmongo'
 
 const autoIndex = NODE_ENV === 'development'
 
+mongoose.set('strictQuery', false)
+
 // Db connection
 module.exports = () => {
   mongoose
