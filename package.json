@@ -3,6 +3,11 @@
     "version": "0.0.0",
     "private": true,
     "main": "app.js",
+    "scripts": {
+      "dev": "NODE_ENV=development nodemon --inspect=0.0.0.0 ./bin/www",
+      "test": "NODE_ENV=test jest ./tests/integration/* -b --coverage --maxWorkers=1",
+      "start": "node ./bin/www"
+    },
     "keywords": [
         "nodejs",
         "expressjs",
