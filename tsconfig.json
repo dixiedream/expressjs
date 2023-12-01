@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "display": "base",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "./",
+    "lib": [
+      "es2023"
+    ],
+    "module": "Node16",
+    "target": "es2022",
+    "declaration": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "strictNullChecks": true,
+    "moduleResolution": "Node16"
+  },
+  "exclude": [ "./dist/", "./node_modules/", "./coverage", "./tests", "./test"]
+}
