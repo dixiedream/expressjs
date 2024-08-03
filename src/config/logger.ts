@@ -1,9 +1,9 @@
-const { createLogger, format, transports } = require('winston')
+import { createLogger, format, transports } from 'winston'
 require('express-async-errors')
 
 const level = process.env.NODE_ENV === 'production' ? 'info' : 'debug'
 
-const logger = createLogger({
+export const logger = createLogger({
   level,
   format: format.combine(
     format.timestamp({
@@ -26,8 +26,6 @@ const logger = createLogger({
   ]
 })
 
-process.on('unhandledRejection', (ex) => {
+process.on('unhandledRejection', (ex: any) => {
   throw ex
 })
-
-module.exports = logger

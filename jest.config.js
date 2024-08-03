@@ -3,7 +3,7 @@ const config = {
   bail: 1,
   clearMocks: true,
   collectCoverageFrom: [
-    "!**/node_modules/**"
+    '!**/node_modules/**'
   ],
   coveragePathIgnorePatterns: [
     '/node_modules/',
@@ -16,13 +16,13 @@ const config = {
   ],
   errorOnDeprecated: true,
   setupFilesAfterEnv: [
-    "./tests/jest.setup.js"
+    './tests/jest.setup.js'
   ],
   roots: [
-    "./src/",
-    "./tests/"
+    './src/',
+    './tests/'
   ],
-  testEnvironment: "node",
+  testEnvironment: 'node',
   preset: 'ts-jest'
 }
 
