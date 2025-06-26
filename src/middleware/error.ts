@@ -1,4 +1,5 @@
-const logger = require('../config/logger')
+import { logger } from '../config/logger'
+import { Request, Response, NextFunction } from "express"
 
 /**
  * Error-handling middleware always takes four arguments.
@@ -7,7 +8,7 @@ const logger = require('../config/logger')
  * Otherwise, the next object will be interpreted as regular middleware and will fail to handle errors.
  */
 // eslint-disable-next-line no-unused-vars
-module.exports = (err, req, res, next) => {
+export default (err: any, _req: Request, res: Response, _next: NextFunction) => {
   logger.error(err.message, err)
 
   res.status(500).send({ message: 'Something failed' })

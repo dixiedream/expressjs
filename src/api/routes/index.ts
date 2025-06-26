@@ -1,9 +1,9 @@
-const error = require('../../middleware/error')
+import error from '../../middleware/error'
 
 /**
  * Your routes loading goes here
  */
-const auth = require('./auth')
+import auth from './auth'
 const users = require('./users')
 
 module.exports = (app) => {

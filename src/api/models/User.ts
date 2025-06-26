@@ -1,15 +1,15 @@
-const bcrypt = require('bcryptjs')
-const crypto = require('crypto')
-const Joi = require('joi')
-const mongoose = require('mongoose')
-const moment = require('moment')
-const { sign: jwtSign } = require('../../shared/jwt')
-const ROLES = require('../../config/roles')
-const {
-  accessToken: { expiresIn: aTokenExpiration },
-  refreshToken: { expiresIn: rTokenExpiration },
-  passwordStrongness
-} = require('../../config/config')
+import bcrypt from 'bcryptjs'
+import crypto from 'node:crypto'
+import Joi from 'joi'
+import mongoose from 'mongoose'
+import moment from 'moment'
+import { sign as jwtSign } from '../../shared/jwt'
+import ROLES from '../../config/roles'
+import config from "../../config/config.js"
+
+const aTokenExpiration = config.accessToken.expiresIn
+const rTokenExpiration = config.refreshToken.expiresIn
+const passwordStrongness = config.passwordStrongness
 
 const { JWT_PRIVATE_KEY, JWT_REFRESH_PRIVATE_KEY } = process.env
 const { Schema } = mongoose
@@ -39,7 +39,7 @@ const UserSchema = new Schema(
 /**
  * Hooks
  */
-UserSchema.pre('save', async function hashPassword (next) {
+UserSchema.pre('save', async function hashPassword(next) {
   const user = this
   if (user.isModified('password')) {
     const salt = await bcrypt.genSalt(10)
@@ -52,7 +52,7 @@ UserSchema.pre('save', async function hashPassword (next) {
 /**
  * Methods
  */
-UserSchema.methods.getResetPasswordToken = function getResetPasswordToken () {
+UserSchema.methods.getResetPasswordToken = function getResetPasswordToken() {
   const token = crypto.randomBytes(20).toString('hex')
   this.resetPasswordToken = crypto
     .createHash('sha256')
@@ -64,22 +64,20 @@ UserSchema.methods.getResetPasswordToken = function getResetPasswordToken () {
   return token
 }
 
-UserSchema.methods.generateAuthToken = function generateAuthToken (expiration) {
-  const exp = expiration || aTokenExpiration
-  return jwtSign({ user: this._id }, JWT_PRIVATE_KEY, exp)
+UserSchema.methods.generateAuthToken = function generateAuthToken(expiration: number) {
+  const exp = expiration ?? aTokenExpiration
+  return jwtSign({ user: this._id }, JWT_PRIVATE_KEY ?? 'NOT_DEFINED', exp)
 }
 
-UserSchema.methods.generateRefreshToken = function generateRefreshToken (
-  expiration
-) {
+UserSchema.methods.generateRefreshToken = function generateRefreshToken(expiration: number) {
   const exp = expiration || rTokenExpiration
-  return jwtSign({ user: this._id }, JWT_REFRESH_PRIVATE_KEY, exp)
+  return jwtSign({ user: this._id }, JWT_REFRESH_PRIVATE_KEY ?? 'NOT_DEFINED', exp)
 }
 
 /**
  * Static methods
  */
-UserSchema.statics.findOneByResetToken = async function findOneByResetToken (
+UserSchema.statics.findOneByResetToken = async function findOneByResetToken(
   clearToken
 ) {
   const hashedToken = crypto
@@ -98,9 +96,9 @@ UserSchema.statics.findOneByResetToken = async function findOneByResetToken (
 /**
  * Exports
  */
-exports.User = mongoose.model('User', UserSchema)
-exports.validate = (user) => {
-  const joiModel = Joi.object({
+export const User = mongoose.model('User', UserSchema)
+export const validate = (user: unknown) => {
+  const joiModel = Joi.object<{ email: string, password: string, role: number }>({
     email: Joi.string()
       .min(5)
       .max(255)

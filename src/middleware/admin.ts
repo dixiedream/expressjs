@@ -4,7 +4,7 @@ import { UserNotAuthorizedError } from '../shared/errors/UserError/UserNotAuthor
 import ROLES from '../config/roles'
 import { Request, Response, NextFunction } from 'express'
 
-export const admin = (req: Request, res: Response, next: NextFunction): void => {
+export default (req: Request, res: Response, next: NextFunction): void => {
   try {
     const { user } = req as any
     if (user === undefined) {

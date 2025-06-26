@@ -1,5 +1,6 @@
-const { EventEmitter } = require('events')
-const logger = require('../config/logger')
+import { EventEmitter } from 'node:events'
+import { logger } from '../config/logger'
+import { Request, Response, NextFunction } from "express"
 
 const profiles = new EventEmitter()
 const { NODE_ENV } = process.env
@@ -20,13 +21,11 @@ profiles.on('route', ({ req, elapsedMS }) => {
   }
 })
 
-const profiler = (req, res, next) => {
-  const start = new Date()
+export default (req: Request, res: Response, next: NextFunction) => {
+  const start = Date.now()
   res.once('finish', () => {
-    profiles.emit('route', { req, elapsedMS: new Date() - start })
+    profiles.emit('route', { req, elapsedMS: Date.now() - start })
   })
 
   next()
 }
-
-module.exports = profiler

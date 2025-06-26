@@ -1,16 +1,17 @@
-const Joi = require('joi')
-const bcrypt = require('bcryptjs')
-const sendMail = require('../../shared/sendMail')
-const { User } = require('../models/User')
-const AuthenticationFailedError = require('../../shared/errors/AuthenticationError/AuthenticationFailedError')
-const InvalidDataError = require('../../shared/errors/InvalidDataError')
-const ResetTokenExpiredError = require('../../shared/errors/AuthenticationError/ResetTokenExpiredError')
-const { Session } = require('../models/Session')
-const MissingTokenError = require('../../shared/errors/AuthorizationError/MissingTokenError')
-const { verify: jwtVerify } = require('../../shared/jwt')
-const InvalidTokenError = require('../../shared/errors/AuthorizationError/InvalidTokenError')
+import Joi from 'joi'
+import bcrypt from 'bcryptjs'
+import { sendMail} from '../../shared/sendMail'
+import { User } from '../models/User'
+import { AuthenticationFailedError }from '../../shared/errors/AuthenticationError/AuthenticationFailedError'
+import { InvalidDataError} from '../../shared/errors/InvalidDataError'
+import { ResetTokenExpiredError }from '../../shared/errors/AuthenticationError/ResetTokenExpiredError'
+import { Session } from '../models/Session.js'
+import { MissingTokenError } from '../../shared/errors/AuthorizationError/MissingTokenError'
+import { verify as jwtVerify } from '../../shared/jwt'
+import { InvalidTokenError} from '../../shared/errors/AuthorizationError/InvalidTokenError'
+import config from '../../config/config'
 
-const { passwordStrongness } = require('../../config/config')
+const passwordStrongness = config.passwordStrongness
 
 const { JWT_REFRESH_PRIVATE_KEY, RESET_PASSWORD_URL } = process.env
 
@@ -18,8 +19,8 @@ const { JWT_REFRESH_PRIVATE_KEY, RESET_PASSWORD_URL } = process.env
  * Validates login data, it's different from the user validate functions
  * because you may want to pass different data
  */
-function validate (body) {
-  const joiModel = Joi.object({
+function validate (body: unknown) {
+  const joiModel = Joi.object<{ email: string, password: string }>({
     email: Joi.string()
       .min(5)
       .max(255)
@@ -34,8 +35,8 @@ function validate (body) {
   return joiModel.validate(body)
 }
 
-function validateForgotPassword (body) {
-  const joiModel = Joi.object({
+function validateForgotPassword (body: unknown) {
+  const joiModel = Joi.object<{ email: string }>({
     email: Joi.string()
       .min(5)
       .max(255)
@@ -47,8 +48,9 @@ function validateForgotPassword (body) {
   return joiModel.validate(body)
 }
 
-function validateResetPassword (body) {
-  const joiModel = Joi.object({
+type ResetPasswordRequest = { password: string }
+function validateResetPassword (body: unknown): Joi.ValidationResult<ResetPasswordRequest> {
+  const joiModel = Joi.object<ResetPasswordRequest>({
     password: Joi.string()
       .regex(passwordStrongness)
       .required()
@@ -58,8 +60,8 @@ function validateResetPassword (body) {
   return joiModel.validate(body)
 }
 
-module.exports = {
-  authenticate: async (body) => {
+export default {
+  authenticate: async (body: unknown) => {
     const { error } = validate(body)
     if (error) {
       throw new InvalidDataError(error.message)
@@ -149,7 +151,7 @@ module.exports = {
       token: authToken
     }
   },
-  resetPassword: async (body, token) => {
+  resetPassword: async (body: unknown, token) => {
     const { error } = validateResetPassword(body)
     if (error) {
       throw new InvalidDataError(error.message)

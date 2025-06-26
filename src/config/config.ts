@@ -1,5 +1,5 @@
 // Common configs
-const Config = {
+export default {
   accessToken: {
     name: 'Authorization',
     expiresIn: 60 * 15 // 15m
@@ -11,5 +11,3 @@ const Config = {
   passwordStrongness:
     /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/
 }
-
-module.exports = Config

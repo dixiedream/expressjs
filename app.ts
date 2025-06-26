@@ -1,8 +1,8 @@
-const express = require('express')
-const cors = require('cors')
-const cookieParser = require('cookie-parser')
-const localization = require('./src/config/localization')
-const profiler = require('./src/middleware/profiler')
+import express from 'express'
+import cors from 'cors'
+import cookieParser from 'cookie-parser'
+import localization from './src/config/localization'
+import profiler from './src/middleware/profiler'
 
 const app = express()
 
@@ -21,4 +21,4 @@ app.use(express.json({ limit: '1mb' })) // Change limit body size
 require('./src/api/routes/index')(app)
 require('./src/config/db')()
 
-module.exports = app
+export default app

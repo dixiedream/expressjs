@@ -1,4 +1,4 @@
-const mongoose = require('mongoose')
+import mongoose from 'mongoose'
 
 const { Schema } = mongoose
 
@@ -20,4 +20,4 @@ const SessionSchema = new Schema({
   }
 })
 
-exports.Session = mongoose.model('Session', SessionSchema)
+export const Session = mongoose.model('Session', SessionSchema)

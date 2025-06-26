@@ -1,21 +1,21 @@
-const Joi = require('joi')
-const bcrypt = require('bcryptjs')
-const { User, validate } = require('../models/User')
-const { Session } = require('../models/Session')
-const UserExistsError = require('../../shared/errors/UserError/UserExistsError')
-const InvalidDataError = require('../../shared/errors/InvalidDataError')
-const NotFoundError = require('../../shared/errors/NotFoundError')
-const ROLES = require('../../config/roles')
-const { passwordStrongness } = require('../../config/config')
+import Joi from 'joi'
+import bcrypt from 'bcryptjs'
+import { User, validate } from '../models/User'
+import { Session } from '../models/Session'
+import {UserExistsError } from '../../shared/errors/UserError/UserExistsError'
+import {InvalidDataError } from '../../shared/errors/InvalidDataError'
+import {NotFoundError } from '../../shared/errors/NotFoundError'
+import ROLES from '../../config/roles'
+import config from '../../config/config'
 
-async function patchPassword (user, oldPassword, newPassword) {
+async function patchPassword (user, oldPassword: string, newPassword: string) {
   const joiModel = Joi.object({
     oldPassword: Joi.string()
-      .regex(passwordStrongness)
+      .regex(config.passwordStrongness)
       .required()
       .error(new Error('password.invalid')),
     newPassword: Joi.string()
-      .regex(passwordStrongness)
+      .regex(config.passwordStrongness)
       .required()
       .error(new Error('password.invalid'))
   })
@@ -37,8 +37,8 @@ async function patchPassword (user, oldPassword, newPassword) {
   return loggedUser
 }
 
-module.exports = {
-  register: async (body) => {
+export default {
+  register: async (body: unknown) => {
     const { error } = validate(body)
     if (error) {
       throw new InvalidDataError(error.message)
