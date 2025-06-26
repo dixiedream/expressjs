@@ -65,7 +65,7 @@ router.post('/', async (req: Request, res: Response) => {
     res
       .cookie(config.refreshToken.name, refreshToken, {
         httpOnly: true,
-        maxAge: config.refreshToken.expiresIn * 1000,
+        maxAge: config.refreshToken.expiresInSec * 1000,
         secure: process.env.NODE_ENV === 'production'
       })
       .status(201)

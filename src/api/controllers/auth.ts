@@ -1,71 +1,87 @@
 import Joi from 'joi'
 import bcrypt from 'bcryptjs'
-import { sendMail} from '../../shared/sendMail'
+import { sendMail } from '../../shared/sendMail'
 import { User } from '../models/User'
-import { AuthenticationFailedError }from '../../shared/errors/AuthenticationError/AuthenticationFailedError'
-import { InvalidDataError} from '../../shared/errors/InvalidDataError'
-import { ResetTokenExpiredError }from '../../shared/errors/AuthenticationError/ResetTokenExpiredError'
+import { AuthenticationFailedError } from '../../shared/errors/AuthenticationError/AuthenticationFailedError'
+import { InvalidDataError } from '../../shared/errors/InvalidDataError'
+import { ResetTokenExpiredError } from '../../shared/errors/AuthenticationError/ResetTokenExpiredError'
 import { Session } from '../models/Session.js'
 import { MissingTokenError } from '../../shared/errors/AuthorizationError/MissingTokenError'
 import { verify as jwtVerify } from '../../shared/jwt'
-import { InvalidTokenError} from '../../shared/errors/AuthorizationError/InvalidTokenError'
+import { InvalidTokenError } from '../../shared/errors/AuthorizationError/InvalidTokenError'
 import config from '../../config/config'
+import typia, { tags } from "typia"
 
 const passwordStrongness = config.passwordStrongness
 
 const { JWT_REFRESH_PRIVATE_KEY, RESET_PASSWORD_URL } = process.env
 
+type Email = string & tags.Format<"email">
+type Password = string & tags.Pattern<"^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$">
+
+interface LoginDataInput {
+  email: Email
+  password: Password
+}
+
 /**
  * Validates login data, it's different from the user validate functions
  * because you may want to pass different data
  */
-function validate (body: unknown) {
-  const joiModel = Joi.object<{ email: string, password: string }>({
-    email: Joi.string()
-      .min(5)
-      .max(255)
-      .required()
-      .email()
-      .error(new Error('email.invalid')),
-    password: Joi.string()
-      .regex(passwordStrongness)
-      .error(new Error('password.invalid'))
-  })
+const validate = typia.createIs<LoginDataInput>()
+// function validate(body: unknown) {
+//   const joiModel = Joi.object<{ email: string, password: string }>({
+//     email: Joi.string()
+//       .min(5)
+//       .max(255)
+//       .required()
+//       .email()
+//       .error(new Error('email.invalid')),
+//     password: Joi.string()
+//       .regex(passwordStrongness)
+//       .error(new Error('password.invalid'))
+//   })
+//
+//   return joiModel.validate(body)
+// }
 
-  return joiModel.validate(body)
-}
-
-function validateForgotPassword (body: unknown) {
-  const joiModel = Joi.object<{ email: string }>({
-    email: Joi.string()
-      .min(5)
-      .max(255)
-      .required()
-      .email()
-      .error(new Error('email.invalid'))
-  })
-
-  return joiModel.validate(body)
-}
+const validateForgotPassword = typia.createAssert<{ email: Email }>()
+// function validateForgotPassword(body: unknown) {
+//   const joiModel = Joi.object<{ email: string }>({
+//     email: Joi.string()
+//       .min(5)
+//       .max(255)
+//       .required()
+//       .email()
+//       .error(new Error('email.invalid'))
+//   })
+//
+//   return joiModel.validate(body)
+// }
 
 type ResetPasswordRequest = { password: string }
-function validateResetPassword (body: unknown): Joi.ValidationResult<ResetPasswordRequest> {
-  const joiModel = Joi.object<ResetPasswordRequest>({
-    password: Joi.string()
-      .regex(passwordStrongness)
-      .required()
-      .error(new Error('password.invalid'))
-  })
-
-  return joiModel.validate(body)
-}
+const validateResetPassword = typia.createAssert<ResetPasswordRequest>()
+// function validateResetPassword(body: unknown): Joi.ValidationResult<ResetPasswordRequest> {
+//   const joiModel = Joi.object<ResetPasswordRequest>({
+//     password: Joi.string()
+//       .regex(passwordStrongness)
+//       .required()
+//       .error(new Error('password.invalid'))
+//   })
+//
+//   return joiModel.validate(body)
+// }
 
 export default {
   authenticate: async (body: unknown) => {
-    const { error } = validate(body)
-    if (error) {
-      throw new InvalidDataError(error.message)
+    if (!validate(body)) {
+      throw new InvalidDataError()
     }
+    // validate(body)
+    // const { error } = validate(body)
+    // if (error) {
+    //   throw new InvalidDataError(error.message)
+    // }
 
     const user = await User.findOne({ email: body.email })
     if (!user) throw new AuthenticationFailedError()

@@ -7,8 +7,8 @@ import { sign as jwtSign } from '../../shared/jwt'
 import ROLES from '../../config/roles'
 import config from "../../config/config.js"
 
-const aTokenExpiration = config.accessToken.expiresIn
-const rTokenExpiration = config.refreshToken.expiresIn
+const aTokenExpiration = config.accessToken.expiresInSec
+const rTokenExpiration = config.refreshToken.expiresInSec
 const passwordStrongness = config.passwordStrongness
 
 const { JWT_PRIVATE_KEY, JWT_REFRESH_PRIVATE_KEY } = process.env
@@ -33,7 +33,45 @@ const UserSchema = new Schema(
     resetPasswordToken: String,
     resetPasswordTokenExpiration: Date
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+    methods: {
+      getResetPasswordToken: function() {
+        const token = crypto.randomBytes(20).toString('hex')
+        this.resetPasswordToken = crypto
+          .createHash('sha256')
+          .update(token)
+          .digest('hex')
+
+        this.resetPasswordTokenExpiration = moment().add({ minutes: 10 }).toDate()
+
+        return token
+      },
+      generateAuthToken: function(expiration?: number) {
+        const exp = expiration ?? aTokenExpiration
+        return jwtSign({ user: this._id }, JWT_PRIVATE_KEY ?? 'NOT_DEFINED', exp)
+      },
+      generateRefreshToken: function(expiration?: number) {
+        const exp = expiration ?? rTokenExpiration
+        return jwtSign({ user: this._id }, JWT_REFRESH_PRIVATE_KEY ?? 'NOT_DEFINED', exp)
+      }
+    },
+    statics: {
+      findOneByResetToken: async function(clearToken) {
+        const hashedToken = crypto
+          .createHash('sha256')
+          .update(clearToken)
+          .digest('hex')
+
+        const user = await this.findOne({
+          resetPasswordToken: hashedToken,
+          resetPasswordTokenExpiration: { $gt: new Date() }
+        })
+
+        return user
+      }
+    }
+  }
 )
 
 /**
@@ -52,46 +90,10 @@ UserSchema.pre('save', async function hashPassword(next) {
 /**
  * Methods
  */
-UserSchema.methods.getResetPasswordToken = function getResetPasswordToken() {
-  const token = crypto.randomBytes(20).toString('hex')
-  this.resetPasswordToken = crypto
-    .createHash('sha256')
-    .update(token)
-    .digest('hex')
-
-  this.resetPasswordTokenExpiration = moment().add({ minutes: 10 }).toDate()
-
-  return token
-}
-
-UserSchema.methods.generateAuthToken = function generateAuthToken(expiration: number) {
-  const exp = expiration ?? aTokenExpiration
-  return jwtSign({ user: this._id }, JWT_PRIVATE_KEY ?? 'NOT_DEFINED', exp)
-}
-
-UserSchema.methods.generateRefreshToken = function generateRefreshToken(expiration: number) {
-  const exp = expiration || rTokenExpiration
-  return jwtSign({ user: this._id }, JWT_REFRESH_PRIVATE_KEY ?? 'NOT_DEFINED', exp)
-}
 
 /**
  * Static methods
  */
-UserSchema.statics.findOneByResetToken = async function findOneByResetToken(
-  clearToken
-) {
-  const hashedToken = crypto
-    .createHash('sha256')
-    .update(clearToken)
-    .digest('hex')
-
-  const user = await this.findOne({
-    resetPasswordToken: hashedToken,
-    resetPasswordTokenExpiration: { $gt: new Date() }
-  })
-
-  return user
-}
 
 /**
  * Exports

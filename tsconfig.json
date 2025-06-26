@@ -15,7 +15,18 @@
     "skipLibCheck": true,
     "strict": true,
     "strictNullChecks": true,
-    "moduleResolution": "Node16"
+    "moduleResolution": "Node16",
+    "plugins": [
+      {
+        "transform": "typia/lib/transform"
+      }
+    ]
   },
-  "exclude": [ "./dist/", "./node_modules/", "./coverage", "./tests", "./test"]
+  "exclude": [
+    "./dist/",
+    "./node_modules/",
+    "./coverage",
+    "./tests",
+    "./test"
+  ]
 }

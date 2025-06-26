@@ -8,7 +8,7 @@ import {NotFoundError } from '../../shared/errors/NotFoundError'
 import ROLES from '../../config/roles'
 import config from '../../config/config'
 
-async function patchPassword (user, oldPassword: string, newPassword: string) {
+async function patchPassword (user: unknown, oldPassword: string, newPassword: string) {
   const joiModel = Joi.object({
     oldPassword: Joi.string()
       .regex(config.passwordStrongness)

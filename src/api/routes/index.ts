@@ -1,12 +1,13 @@
 import error from '../../middleware/error'
+import express from "express"
 
 /**
  * Your routes loading goes here
  */
 import auth from './auth'
-const users = require('./users')
+import users from './users'
 
-module.exports = (app) => {
+export default (app: express.Application) => {
   /**
    * Healthcheck route
    */
