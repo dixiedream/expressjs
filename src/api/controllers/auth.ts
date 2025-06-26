@@ -1,7 +1,5 @@
-import Joi from 'joi'
 import bcrypt from 'bcryptjs'
 import { sendMail } from '../../shared/sendMail'
-import { User } from '../models/User'
 import { AuthenticationFailedError } from '../../shared/errors/AuthenticationError/AuthenticationFailedError'
 import { InvalidDataError } from '../../shared/errors/InvalidDataError'
 import { ResetTokenExpiredError } from '../../shared/errors/AuthenticationError/ResetTokenExpiredError'
@@ -9,26 +7,20 @@ import { Session } from '../models/Session.js'
 import { MissingTokenError } from '../../shared/errors/AuthorizationError/MissingTokenError'
 import { verify as jwtVerify } from '../../shared/jwt'
 import { InvalidTokenError } from '../../shared/errors/AuthorizationError/InvalidTokenError'
-import config from '../../config/config'
-import typia, { tags } from "typia"
-
-const passwordStrongness = config.passwordStrongness
+import typia from "typia"
+import i18next from 'i18next'
+import { Email } from '../../types/Core'
+import { LoginDataInput } from '../../types/Requests'
+import { validateLoginData } from '../../shared/validators'
+import { IUser, UserModel } from '../models/User'
+import { HydratedDocument } from 'mongoose'
 
 const { JWT_REFRESH_PRIVATE_KEY, RESET_PASSWORD_URL } = process.env
-
-type Email = string & tags.Format<"email">
-type Password = string & tags.Pattern<"^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$">
-
-interface LoginDataInput {
-  email: Email
-  password: Password
-}
 
 /**
  * Validates login data, it's different from the user validate functions
  * because you may want to pass different data
  */
-const validate = typia.createIs<LoginDataInput>()
 // function validate(body: unknown) {
 //   const joiModel = Joi.object<{ email: string, password: string }>({
 //     email: Joi.string()
@@ -45,7 +37,7 @@ const validate = typia.createIs<LoginDataInput>()
 //   return joiModel.validate(body)
 // }
 
-const validateForgotPassword = typia.createAssert<{ email: Email }>()
+const validateForgotPassword = typia.createAssertGuard<{ email: Email }>()
 // function validateForgotPassword(body: unknown) {
 //   const joiModel = Joi.object<{ email: string }>({
 //     email: Joi.string()
@@ -60,7 +52,7 @@ const validateForgotPassword = typia.createAssert<{ email: Email }>()
 // }
 
 type ResetPasswordRequest = { password: string }
-const validateResetPassword = typia.createAssert<ResetPasswordRequest>()
+const validateResetPassword = typia.createAssertGuard<ResetPasswordRequest>()
 // function validateResetPassword(body: unknown): Joi.ValidationResult<ResetPasswordRequest> {
 //   const joiModel = Joi.object<ResetPasswordRequest>({
 //     password: Joi.string()
@@ -73,17 +65,10 @@ const validateResetPassword = typia.createAssert<ResetPasswordRequest>()
 // }
 
 export default {
-  authenticate: async (body: unknown) => {
-    if (!validate(body)) {
-      throw new InvalidDataError()
-    }
-    // validate(body)
-    // const { error } = validate(body)
-    // if (error) {
-    //   throw new InvalidDataError(error.message)
-    // }
+  authenticate: async (body: LoginDataInput) => {
+    validateLoginData(body)
 
-    const user = await User.findOne({ email: body.email })
+    const user = await UserModel.findOne({ email: body.email }).exec()
     if (!user) throw new AuthenticationFailedError()
 
     const validPassword = await bcrypt.compare(body.password, user.password)
@@ -91,20 +76,17 @@ export default {
       throw new AuthenticationFailedError()
     }
 
-    const token = user.generateAuthToken()
+    const token = user.model.generateAuthToken()
     const rToken = user.generateRefreshToken()
     await Session.deleteMany({ user: user._id })
     await Session.create({ refreshToken: rToken, user: user._id })
 
     return { token, refreshToken: rToken }
   },
-  forgotPassword: async (body, t) => {
-    const { error } = validateForgotPassword(body)
-    if (error) {
-      throw new InvalidDataError(error.message)
-    }
+  forgotPassword: async (body: { email: string }, t: typeof i18next.t) => {
+    validateForgotPassword(body)
 
-    const user = await User.findOne({ email: body.email })
+    const user = await UserModel.findOne({ email: body.email }).exec()
     if (!user) {
       throw new InvalidDataError()
     }
@@ -132,29 +114,29 @@ export default {
 
     return { message: t('forgotPassword.success') }
   },
-  logout: async (cookies) => {
+  logout: async (cookies: Record<string, any>) => {
     const token = cookies.refresh_token
-    if (!token) return {}
+    if (token === undefined) return {}
 
     return Session.deleteOne({ refreshToken: token })
   },
-  refresh: async (cookies) => {
+  refresh: async (cookies: Record<string, any>) => {
     const token = cookies.refresh_token
     if (!token) {
       throw new MissingTokenError()
     }
-    const { data, valid } = jwtVerify(token, JWT_REFRESH_PRIVATE_KEY)
+    const { data, valid } = jwtVerify(token, JWT_REFRESH_PRIVATE_KEY ?? 'NOT_DEFINED')
     if (!valid) {
       throw new InvalidTokenError()
     }
 
-    const session = await Session.findOne({ refreshToken: token })
+    const session = await Session.findOne({ refreshToken: token }).lean()
     if (!session) {
       throw new InvalidTokenError()
     }
 
     let { user } = data
-    user = await User.findOne({
+    user = await UserModel.findOne({
       _id: user
     })
 
@@ -167,17 +149,14 @@ export default {
       token: authToken
     }
   },
-  resetPassword: async (body: unknown, token) => {
-    const { error } = validateResetPassword(body)
-    if (error) {
-      throw new InvalidDataError(error.message)
-    }
+  resetPassword: async (body: ResetPasswordRequest, token?: string) => {
+    validateResetPassword(body)
 
-    if (!token) {
+    if (token === undefined) {
       throw new InvalidDataError('resetPassword.missingTokenError')
     }
 
-    const user = await User.findOneByResetToken(token)
+    const user = await UserModel.findOneByResetToken(token)
     if (!user) {
       throw new ResetTokenExpiredError()
     }

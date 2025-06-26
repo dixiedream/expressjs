@@ -3,6 +3,14 @@ import cors from 'cors'
 import cookieParser from 'cookie-parser'
 import localization from './src/config/localization'
 import profiler from './src/middleware/profiler'
+import { IUser } from './src/api/models/User'
+
+export interface AppResponseLocals {
+  user?: IUser
+  token?: string
+}
+
+export type AppResponse<T = any> = express.Response<T, AppResponseLocals>
 
 const app = express()
 

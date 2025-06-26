@@ -16,7 +16,7 @@ export function verify(token: string, secret: string) {
     })
 
     return {
-      data,
+      data: typeof data === 'string' ? JSON.parse(data) : data,
       expired: false,
       valid: true
     }
@@ -24,7 +24,7 @@ export function verify(token: string, secret: string) {
     return {
       valid: false,
       expired: e.name !== undefined && e.name === TokenExpiredError,
-      data: null
+      data: undefined
     }
   }
 }

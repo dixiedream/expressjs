@@ -4,15 +4,16 @@ import users from '../controllers/users'
 import { APIError } from '../../shared/errors/APIError'
 import { logger } from '../../config/logger'
 import config from '../../config/config.js'
-import { Request, Response } from 'express'
+import { Request } from 'express'
 import admin from '../../middleware/admin'
 import validateObjectId from '../../middleware/validateObjectId'
+import { AppResponse } from '../../../app'
 
 /**
  * Get user data
  */
-router.get('/me', auth, (_req: Request, res: Response) => {
-  logger.info('ME_REQUEST', { user: res.locals.user.email })
+router.get('/me', auth, (_req: Request, res: AppResponse) => {
+  logger.info('ME_REQUEST', { user: res.locals.user?.email })
   const user = users.getMe(res.locals.user)
   logger.info('ME_REQUEST_SUCCEEDED', { user: user.email })
   res.status(200).send(user)
@@ -21,7 +22,7 @@ router.get('/me', auth, (_req: Request, res: Response) => {
 /**
  * Patch logged user
  */
-router.patch('/me', auth, async (req: Request, res: Response) => {
+router.patch('/me', auth, async (req: Request, res: AppResponse) => {
   logger.info('PATCH_ME_REQUEST', { user: res.locals.user.email })
   try {
     const user = await users.patchMe(res.locals.user, req.body)
@@ -42,7 +43,7 @@ router.patch('/me', auth, async (req: Request, res: Response) => {
 /**
  * Get all users
  */
-router.get('/', [auth, admin], async (req: Request, res: Response) => {
+router.get('/', [auth, admin], async (req: Request, res: AppResponse) => {
   logger.info('USERS_REQUEST')
   try {
     const result = await users.all()
@@ -57,7 +58,7 @@ router.get('/', [auth, admin], async (req: Request, res: Response) => {
 /**
  * Register a new user
  */
-router.post('/', async (req: Request, res: Response) => {
+router.post('/', async (req: Request, res: AppResponse) => {
   logger.info('CREATE_USER_REQUEST', { email: req.body.email })
   try {
     const { token, email, refreshToken } = await users.register(req.body)
@@ -87,7 +88,7 @@ router.post('/', async (req: Request, res: Response) => {
 /**
  * Patch user
  */
-router.patch('/:id', [auth, admin, validateObjectId], async (req: Request, res: Response) => {
+router.patch('/:id', [auth, admin, validateObjectId], async (req: Request, res: AppResponse) => {
   const { id } = req.params
   logger.info('PATCH_USER_REQUEST', { user: id })
   try {

@@ -1,20 +1,24 @@
 import bcrypt from 'bcryptjs'
 import crypto from 'node:crypto'
 import Joi from 'joi'
-import mongoose from 'mongoose'
+import mongoose, { HydratedDocument } from 'mongoose'
 import moment from 'moment'
-import { sign as jwtSign } from '../../shared/jwt'
 import ROLES from '../../config/roles'
 import config from "../../config/config.js"
 
-const aTokenExpiration = config.accessToken.expiresInSec
-const rTokenExpiration = config.refreshToken.expiresInSec
 const passwordStrongness = config.passwordStrongness
 
-const { JWT_PRIVATE_KEY, JWT_REFRESH_PRIVATE_KEY } = process.env
 const { Schema } = mongoose
 
-const UserSchema = new Schema(
+export interface IUser {
+  email: string
+  password: string
+  role: number
+  resetPasswordToken: string
+  resetPasswordTokenExpiration: Date
+}
+
+export const UserSchema = new Schema<IUser>(
   {
     email: {
       type: String,
@@ -36,7 +40,7 @@ const UserSchema = new Schema(
   {
     timestamps: true,
     methods: {
-      getResetPasswordToken: function() {
+      getResetPasswordToken: function(): string {
         const token = crypto.randomBytes(20).toString('hex')
         this.resetPasswordToken = crypto
           .createHash('sha256')
@@ -47,17 +51,17 @@ const UserSchema = new Schema(
 
         return token
       },
-      generateAuthToken: function(expiration?: number) {
-        const exp = expiration ?? aTokenExpiration
-        return jwtSign({ user: this._id }, JWT_PRIVATE_KEY ?? 'NOT_DEFINED', exp)
-      },
-      generateRefreshToken: function(expiration?: number) {
-        const exp = expiration ?? rTokenExpiration
-        return jwtSign({ user: this._id }, JWT_REFRESH_PRIVATE_KEY ?? 'NOT_DEFINED', exp)
-      }
+      // generateAuthToken: function(expiration?: number): string {
+      //   const exp = expiration ?? aTokenExpiration
+      //   return jwtSign({ user: this._id }, JWT_PRIVATE_KEY ?? 'NOT_DEFINED', exp)
+      // },
+      // generateRefreshToken: function(expiration?: number): string {
+      //   const exp = expiration ?? rTokenExpiration
+      //   return jwtSign({ user: this._id }, JWT_REFRESH_PRIVATE_KEY ?? 'NOT_DEFINED', exp)
+      // }
     },
     statics: {
-      findOneByResetToken: async function(clearToken) {
+      findOneByResetToken: async function(clearToken: string) {
         const hashedToken = crypto
           .createHash('sha256')
           .update(clearToken)
@@ -88,17 +92,10 @@ UserSchema.pre('save', async function hashPassword(next) {
 })
 
 /**
- * Methods
- */
-
-/**
- * Static methods
- */
-
-/**
  * Exports
  */
-export const User = mongoose.model('User', UserSchema)
+export type UserDocument = HydratedDocument<IUser>
+export const UserModel = mongoose.model('User', UserSchema)
 export const validate = (user: unknown) => {
   const joiModel = Joi.object<{ email: string, password: string, role: number }>({
     email: Joi.string()

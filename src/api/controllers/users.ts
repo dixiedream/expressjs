@@ -1,29 +1,19 @@
-import Joi from 'joi'
 import bcrypt from 'bcryptjs'
-import { User, validate } from '../models/User'
+import { UserDocument, UserModel } from '../models/User'
 import { Session } from '../models/Session'
 import {UserExistsError } from '../../shared/errors/UserError/UserExistsError'
 import {InvalidDataError } from '../../shared/errors/InvalidDataError'
 import {NotFoundError } from '../../shared/errors/NotFoundError'
 import ROLES from '../../config/roles'
-import config from '../../config/config'
+import typia from 'typia'
+import { Password } from '../../types/Core'
+import mongoose from 'mongoose'
+import { LoginDataInput } from '../../types/Requests'
+import { validateLoginData } from '../../shared/validators'
+import token from '../../shared/token'
 
-async function patchPassword (user: unknown, oldPassword: string, newPassword: string) {
-  const joiModel = Joi.object({
-    oldPassword: Joi.string()
-      .regex(config.passwordStrongness)
-      .required()
-      .error(new Error('password.invalid')),
-    newPassword: Joi.string()
-      .regex(config.passwordStrongness)
-      .required()
-      .error(new Error('password.invalid'))
-  })
-
-  const { error } = joiModel.validate({ oldPassword, newPassword })
-  if (error) {
-    throw new InvalidDataError(error.message)
-  }
+async function patchPassword (user: UserDocument, oldPassword: string, newPassword: string) {
+  typia.assertGuard<{ oldPassword: Password, newPassword: Password }>({ oldPassword, newPassword })
 
   const validPassword = await bcrypt.compare(oldPassword, user.password)
   if (!validPassword) {
@@ -38,30 +28,27 @@ async function patchPassword (user: unknown, oldPassword: string, newPassword: s
 }
 
 export default {
-  register: async (body: unknown) => {
-    const { error } = validate(body)
-    if (error) {
-      throw new InvalidDataError(error.message)
-    }
+  register: async (body: LoginDataInput) => {
+    validateLoginData(body)
 
-    let user = await User.findOne({ email: body.email })
+    let user = await UserModel.findOne({ email: body.email })
     if (user) throw new UserExistsError()
 
-    user = new User({
+    user = new UserModel({
       email: body.email,
       password: body.password
     })
 
     await user.save()
 
-    const token = user.generateAuthToken()
-    const rToken = user.generateRefreshToken()
+    const accessToken = token.generateAuthToken(user._id.toString())
+    const rToken = token.generateRefreshToken(user._id.toString())
     await Session.deleteMany({ user: user._id })
     await Session.create({ refreshToken: rToken, user: user._id })
 
-    return { token, email: user.email, refreshToken: rToken }
+    return { token: accessToken, email: user.email, refreshToken: rToken }
   },
-  getMe: (user) => {
+  getMe: (user: UserDocument) => {
     return {
       email: user.email,
       role: user.role,
@@ -81,8 +68,8 @@ export default {
       createdAt: updatedUser.createdAt
     }
   },
-  patch: async (userID, body) => {
-    const user = await User.findOne({ _id: userID })
+  patch: async (userID: mongoose.Types.ObjectId, body: { role?: number }) => {
+    const user = await UserModel.findOne({ _id: userID })
     if (!user) {
       throw new NotFoundError()
     }
@@ -102,7 +89,7 @@ export default {
     }
   },
   all: async () => {
-    const users = await User.find().select('-password -__v')
+    const users = await UserModel.find().select('-password -__v')
     return users
   }
 }
