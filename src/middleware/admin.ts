@@ -1,9 +1,9 @@
-import { logger } from '../config/logger'
-import { InvalidDataError } from '../shared/errors/InvalidDataError'
-import { UserNotAuthorizedError } from '../shared/errors/UserError/UserNotAuthorizedError'
-import ROLES from '../config/roles'
+import { logger } from '../config/logger.js'
+import { InvalidDataError } from '../shared/errors/InvalidDataError.js'
+import { UserNotAuthorizedError } from '../shared/errors/UserError/UserNotAuthorizedError.js'
+import ROLES from '../config/roles.js'
 import { Request, Response, NextFunction } from 'express'
-import { AppResponseLocals } from '../../app'
+import { AppResponseLocals } from '../../app.js'
 
 export default (_req: Request, res: Response<any, AppResponseLocals>, next: NextFunction): void => {
   try {

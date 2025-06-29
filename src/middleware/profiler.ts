@@ -1,5 +1,5 @@
 import { EventEmitter } from 'node:events'
-import { logger } from '../config/logger'
+import { logger } from '../config/logger.js'
 import { Request, Response, NextFunction } from "express"
 
 const profiles = new EventEmitter()

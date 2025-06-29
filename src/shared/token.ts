@@ -1,4 +1,4 @@
-import { sign } from "./jwt";
+import { sign } from "./jwt.js";
 import config from "../config/config.js"
 import crypto from 'node:crypto'
 

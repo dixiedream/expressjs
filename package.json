@@ -2,7 +2,8 @@
   "description": "Express Js boilerplate",
   "version": "0.0.0",
   "private": true,
-  "main": "app.js",
+  "main": "dist/app.js",
+  "type": "module",
   "scripts": {
     "test": "NODE_ENV=test jest --runInBand",
     "posttest": "npm run lint",
@@ -10,12 +11,11 @@
     "lint": "ts-standard",
     "fix": "ts-standard --fix",
     "dev": "ts-node-dev --inspect=0.0.0.0 ./bin/www",
-    "start": "ts-node ./bin/www",
+    "start": "ts-node ./bin/www.mjs",
     "build": "tsc -p .",
     "old-dev": "NODE_ENV=development nodemon --inspect=0.0.0.0 ./bin/www",
     "old-test": "NODE_ENV=test jest ./tests/integration/* -b --coverage --maxWorkers=1",
-    "old-start": "node ./bin/www",
-    "prepare": "ts-patch install"
+    "old-start": "node ./bin/www"
   },
   "keywords": [
     "nodejs",

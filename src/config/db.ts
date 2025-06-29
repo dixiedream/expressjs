@@ -3,7 +3,7 @@ import { logger } from './logger'
 
 const { NODE_ENV, MONGO_CONNECTION } = process.env
 
-const mongoConnection = MONGO_CONNECTION || 'mongodb://db:27017/expressmongo'
+const mongoConnection = MONGO_CONNECTION ?? 'mongodb://db:27017/expressmongo'
 
 const autoIndex = NODE_ENV === 'development'
 

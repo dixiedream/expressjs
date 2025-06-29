@@ -1,4 +1,4 @@
-import { APIError } from '../APIError'
+import { APIError } from '../APIError.js'
 
 export class ResetTokenExpiredError extends APIError {
   constructor (message?: string) {

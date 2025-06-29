@@ -1,6 +1,5 @@
 import nodemailer from 'nodemailer'
 import { logger } from '../config/logger.js'
-import SMTPTransport from 'nodemailer/lib/smtp-transport'
 
 const {
   SMTP_HOST,
@@ -30,7 +29,7 @@ export const sendMail = async ({ email, subject, text }: SendMailParams): Promis
 
   const port = SMTP_PORT ?? '465'
 
-  const transport: SMTPTransport.Options = {
+  const transport = {
     host: SMTP_HOST,
     port: parseInt(port),
     secure: parseInt(port) === 465,

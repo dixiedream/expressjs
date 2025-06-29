@@ -1,7 +1,7 @@
 import bcrypt from 'bcryptjs'
 import crypto from "node:crypto"
-import { sendMail } from '../../shared/sendMail'
-import { AuthenticationFailedError } from '../../shared/errors/AuthenticationError/AuthenticationFailedError'
+import { sendMail } from '../../shared/sendMail.js'
+import { AuthenticationFailedError } from '../../shared/errors/AuthenticationError/AuthenticationFailedError.js'
 import { InvalidDataError } from '../../shared/errors/InvalidDataError'
 import { ResetTokenExpiredError } from '../../shared/errors/AuthenticationError/ResetTokenExpiredError'
 import { Session } from '../models/Session.js'

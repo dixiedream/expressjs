@@ -18,7 +18,7 @@ ENV PATH=/app/node_modules/.bin:$PATH
 COPY docker-entrypoint.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 ENTRYPOINT [ "docker-entrypoint.sh" ]
-CMD [ "node", "./bin/www" ]
+CMD [ "node", "./bin/www.mjs" ]
 
 # Image for development
 FROM base AS dev
@@ -35,7 +35,7 @@ ENV JWT_REFRESH_PRIVATE_KEY=notSoSecretPassword
 ENV JWT_ISSUER=https://dummy.issuer.com
 COPY . .
 RUN npm config list
-RUN npm install \
+RUN npm ci \
   && npm cache clean --force
 RUN standard
 RUN jest ./tests/unit/*
@@ -52,8 +52,7 @@ RUN trivy filesystem --no-progress /
 # Cleaning image before production
 FROM test AS pre-prod
 USER root
-RUN rm -rf ./tests && \
-  rm -rf ./node_modules
+RUN rm -rf ./tests ./node_modules
 
 # Production image
 FROM base AS prod

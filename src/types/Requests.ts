@@ -1,4 +1,4 @@
-import { Email, Password } from "./Core"
+import { Email, Password } from "./Core.js"
 
 export interface LoginDataInput {
   email: Email
