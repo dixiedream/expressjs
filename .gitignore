@@ -63,3 +63,4 @@ test.env
 
 # typescript build file
 dist
+package-lock.json
