@@ -8,12 +8,14 @@ import { Request } from 'express'
 import admin from '../../middleware/admin'
 import validateObjectId from '../../middleware/validateObjectId'
 import { AppResponse } from '../../../app'
+import mongoose from 'mongoose'
 
 /**
  * Get user data
  */
-router.get('/me', auth, (_req: Request, res: AppResponse) => {
-  logger.info('ME_REQUEST', { user: res.locals.user?.email })
+router.get('/me', auth, (req: Request, res: AppResponse) => {
+  if (res.locals.user === undefined) return res.status(400).send(req.t("error.invalidData"))
+  logger.info('ME_REQUEST', { user: res.locals.user.email })
   const user = users.getMe(res.locals.user)
   logger.info('ME_REQUEST_SUCCEEDED', { user: user.email })
   res.status(200).send(user)
@@ -23,6 +25,7 @@ router.get('/me', auth, (_req: Request, res: AppResponse) => {
  * Patch logged user
  */
 router.patch('/me', auth, async (req: Request, res: AppResponse) => {
+  if (res.locals.user === undefined) return res.status(400).send(req.t("error.invalidData"))
   logger.info('PATCH_ME_REQUEST', { user: res.locals.user.email })
   try {
     const user = await users.patchMe(res.locals.user, req.body)
@@ -43,7 +46,7 @@ router.patch('/me', auth, async (req: Request, res: AppResponse) => {
 /**
  * Get all users
  */
-router.get('/', [auth, admin], async (req: Request, res: AppResponse) => {
+router.get('/', [auth, admin], async (_req: Request, res: AppResponse) => {
   logger.info('USERS_REQUEST')
   try {
     const result = await users.all()
@@ -92,7 +95,7 @@ router.patch('/:id', [auth, admin, validateObjectId], async (req: Request, res: 
   const { id } = req.params
   logger.info('PATCH_USER_REQUEST', { user: id })
   try {
-    const user = await users.patch(id, req.body)
+    const user = await users.patch(new mongoose.Types.ObjectId(id), req.body)
     logger.info('PATCH_USER_SUCCEEDED', { user: id })
     res.status(200).send(user)
   } catch (e: any) {

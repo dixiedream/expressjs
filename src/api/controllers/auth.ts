@@ -1,4 +1,5 @@
 import bcrypt from 'bcryptjs'
+import crypto from "node:crypto"
 import { sendMail } from '../../shared/sendMail'
 import { AuthenticationFailedError } from '../../shared/errors/AuthenticationError/AuthenticationFailedError'
 import { InvalidDataError } from '../../shared/errors/InvalidDataError'
@@ -14,6 +15,8 @@ import { LoginDataInput } from '../../types/Requests'
 import { validateLoginData } from '../../shared/validators'
 import { IUser, UserModel } from '../models/User'
 import { HydratedDocument } from 'mongoose'
+import token from '../../shared/token'
+import moment from 'moment'
 
 const { JWT_REFRESH_PRIVATE_KEY, RESET_PASSWORD_URL } = process.env
 
@@ -76,12 +79,12 @@ export default {
       throw new AuthenticationFailedError()
     }
 
-    const token = user.model.generateAuthToken()
-    const rToken = user.generateRefreshToken()
+    const aToken = token.generateAuthToken(user._id.toString())
+    const rToken = token.generateRefreshToken(user._id.toString())
     await Session.deleteMany({ user: user._id })
     await Session.create({ refreshToken: rToken, user: user._id })
 
-    return { token, refreshToken: rToken }
+    return { token: aToken, refreshToken: rToken }
   },
   forgotPassword: async (body: { email: string }, t: typeof i18next.t) => {
     validateForgotPassword(body)
@@ -91,10 +94,13 @@ export default {
       throw new InvalidDataError()
     }
 
-    const resetToken = user.getResetPasswordToken()
+    const clear = crypto.randomBytes(20).toString('hex')
+    user.resetPasswordToken = token.generateResetPasswordToken(clear)
+    user.resetPasswordTokenExpiration = moment().add({ minutes: 10 }).toDate()
+
     await user.save()
 
-    const resetURL = `${RESET_PASSWORD_URL}/${resetToken}`
+    const resetURL = `${RESET_PASSWORD_URL}/${clear}`
     const message = `${t(
       'forgotPassword.mail.message'
     )}<br><a href='${resetURL}'>${resetURL}</a>`
@@ -149,14 +155,16 @@ export default {
       token: authToken
     }
   },
-  resetPassword: async (body: ResetPasswordRequest, token?: string) => {
+  resetPassword: async (body: ResetPasswordRequest, clear?: string) => {
     validateResetPassword(body)
 
-    if (token === undefined) {
+    if (clear === undefined) {
       throw new InvalidDataError('resetPassword.missingTokenError')
     }
 
-    const user = await UserModel.findOneByResetToken(token)
+    const hash = token.generateResetPasswordToken(clear)
+
+    const user = await UserModel.findOne({ resetPasswordToken: hash, resetPasswordTokenExpiration: { $gt: new Date() } })
     if (!user) {
       throw new ResetTokenExpiredError()
     }
@@ -167,8 +175,8 @@ export default {
 
     await user.save()
 
-    const authToken = user.generateAuthToken()
-    const rToken = user.generateRefreshToken()
+    const authToken = token.generateAuthToken(user._id.toString())
+    const rToken = token.generateRefreshToken(user._id.toString())
     await Session.deleteMany({ user: user._id })
     await Session.create({ refreshToken: rToken, user: user._id })
 

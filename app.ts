@@ -3,10 +3,10 @@ import cors from 'cors'
 import cookieParser from 'cookie-parser'
 import localization from './src/config/localization'
 import profiler from './src/middleware/profiler'
-import { IUser } from './src/api/models/User'
+import { UserDocument } from './src/api/models/User'
 
 export interface AppResponseLocals {
-  user?: IUser
+  user?: UserDocument
   token?: string
 }
 

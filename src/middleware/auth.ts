@@ -1,18 +1,18 @@
 import { verify } from '../shared/jwt.js'
-import { Request, Response, NextFunction } from "express"
-import { IUser } from '../api/models/User.js'
+import { Request, NextFunction } from "express"
 import { MissingTokenError } from '../shared/errors/AuthorizationError/MissingTokenError.js'
 import { InvalidTokenError } from '../shared/errors/AuthorizationError/InvalidTokenError.js'
 import { logger } from '../config/logger.js'
 import { InvalidDataError } from '../shared/errors/InvalidDataError.js'
 import config from '../config/config.js'
-import { AppResponseLocals } from '../../app.js'
+import { AppResponse } from '../../app.js'
+import { UserModel } from '../api/models/User.js'
 
 const TOKEN_NAME = config.accessToken.name
 
-const JWT_PRIVATE_KEY = process.env.JWT_PRIVATE_KEY ?? 'UNKNOWN'
+const JWT_PRIVATE_KEY = process.env.JWT_PRIVATE_KEY ?? 'NOT_DEFINED'
 
-export default async (req: Request, res: Response<any, AppResponseLocals>, next: NextFunction): Promise<void> => {
+export default async (req: Request, res: AppResponse, next: NextFunction): Promise<void> => {
   try {
     const header = req.header(TOKEN_NAME)
     const token = header !== undefined && header[0].replace('Bearer ', '')
@@ -28,7 +28,7 @@ export default async (req: Request, res: Response<any, AppResponseLocals>, next:
     if (data === null) throw new InvalidTokenError()
     const parsedData = typeof data === 'string' ? JSON.parse(data) : data
 
-    const user = await User.findOne({ _id: parsedData.user }).lean()
+    const user = await UserModel.findOne({ _id: parsedData.user })
     if (!user) {
       throw new InvalidDataError()
     }

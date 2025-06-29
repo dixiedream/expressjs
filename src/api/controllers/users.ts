@@ -1,9 +1,9 @@
 import bcrypt from 'bcryptjs'
 import { UserDocument, UserModel } from '../models/User'
 import { Session } from '../models/Session'
-import {UserExistsError } from '../../shared/errors/UserError/UserExistsError'
-import {InvalidDataError } from '../../shared/errors/InvalidDataError'
-import {NotFoundError } from '../../shared/errors/NotFoundError'
+import { UserExistsError } from '../../shared/errors/UserError/UserExistsError'
+import { InvalidDataError } from '../../shared/errors/InvalidDataError'
+import { NotFoundError } from '../../shared/errors/NotFoundError'
 import ROLES from '../../config/roles'
 import typia from 'typia'
 import { Password } from '../../types/Core'
@@ -12,8 +12,14 @@ import { LoginDataInput } from '../../types/Requests'
 import { validateLoginData } from '../../shared/validators'
 import token from '../../shared/token'
 
-async function patchPassword (user: UserDocument, oldPassword: string, newPassword: string) {
-  typia.assertGuard<{ oldPassword: Password, newPassword: Password }>({ oldPassword, newPassword })
+interface PatchPasswordInput {
+  oldPassword: Password
+  newPassword: Password
+}
+
+async function patchPassword(user: UserDocument, oldPassword: string, newPassword: string) {
+
+  typia.assertGuard<PatchPasswordInput>({ oldPassword, newPassword })
 
   const validPassword = await bcrypt.compare(oldPassword, user.password)
   if (!validPassword) {
@@ -55,7 +61,7 @@ export default {
       createdAt: user.createdAt
     }
   },
-  patchMe: async (user, body) => {
+  patchMe: async (user: UserDocument, body: PatchPasswordInput) => {
     let updatedUser = user
     if (body.oldPassword && body.newPassword) {
       const { oldPassword, newPassword } = body

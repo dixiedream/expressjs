@@ -1,8 +1,6 @@
 import bcrypt from 'bcryptjs'
-import crypto from 'node:crypto'
 import Joi from 'joi'
 import mongoose, { HydratedDocument } from 'mongoose'
-import moment from 'moment'
 import ROLES from '../../config/roles'
 import config from "../../config/config.js"
 
@@ -11,11 +9,12 @@ const passwordStrongness = config.passwordStrongness
 const { Schema } = mongoose
 
 export interface IUser {
+  createdAt: Date
   email: string
   password: string
   role: number
-  resetPasswordToken: string
-  resetPasswordTokenExpiration: Date
+  resetPasswordToken?: string
+  resetPasswordTokenExpiration?: Date
 }
 
 export const UserSchema = new Schema<IUser>(
@@ -38,43 +37,7 @@ export const UserSchema = new Schema<IUser>(
     resetPasswordTokenExpiration: Date
   },
   {
-    timestamps: true,
-    methods: {
-      getResetPasswordToken: function(): string {
-        const token = crypto.randomBytes(20).toString('hex')
-        this.resetPasswordToken = crypto
-          .createHash('sha256')
-          .update(token)
-          .digest('hex')
-
-        this.resetPasswordTokenExpiration = moment().add({ minutes: 10 }).toDate()
-
-        return token
-      },
-      // generateAuthToken: function(expiration?: number): string {
-      //   const exp = expiration ?? aTokenExpiration
-      //   return jwtSign({ user: this._id }, JWT_PRIVATE_KEY ?? 'NOT_DEFINED', exp)
-      // },
-      // generateRefreshToken: function(expiration?: number): string {
-      //   const exp = expiration ?? rTokenExpiration
-      //   return jwtSign({ user: this._id }, JWT_REFRESH_PRIVATE_KEY ?? 'NOT_DEFINED', exp)
-      // }
-    },
-    statics: {
-      findOneByResetToken: async function(clearToken: string) {
-        const hashedToken = crypto
-          .createHash('sha256')
-          .update(clearToken)
-          .digest('hex')
-
-        const user = await this.findOne({
-          resetPasswordToken: hashedToken,
-          resetPasswordTokenExpiration: { $gt: new Date() }
-        })
-
-        return user
-      }
-    }
+    timestamps: true
   }
 )
 

@@ -16,7 +16,10 @@ export default {
     const exp = expiration ?? rTokenExpiration
     return sign({ user }, JWT_REFRESH_PRIVATE_KEY ?? 'NOT_DEFINED', exp)
   },
-  generateResetPasswordToken: (): string => {
-    return crypto.randomBytes(20).toString('hex')
-  }
+  generateResetPasswordToken: (data: string): string => {
+    return crypto
+      .createHash('sha256')
+      .update(data)
+      .digest('hex')
+  },
 }
