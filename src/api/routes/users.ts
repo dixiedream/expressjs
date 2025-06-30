@@ -1,13 +1,13 @@
 const router = require('express').Router()
-import auth from '../../middleware/auth'
-import users from '../controllers/users'
-import { APIError } from '../../shared/errors/APIError'
-import { logger } from '../../config/logger'
+import auth from '../../middleware/auth.js'
+import users from '../controllers/users.js'
+import { APIError } from '../../shared/errors/APIError.js'
+import { logger } from '../../config/logger.js'
 import config from '../../config/config.js'
 import { Request } from 'express'
-import admin from '../../middleware/admin'
-import validateObjectId from '../../middleware/validateObjectId'
-import { AppResponse } from '../../../app'
+import admin from '../../middleware/admin.js'
+import validateObjectId from '../../middleware/validateObjectId.js'
+import { AppResponse } from '../../../app.js'
 import mongoose from 'mongoose'
 
 /**

@@ -1,11 +1,11 @@
-import error from '../../middleware/error'
+import error from '../../middleware/error.js'
 import express from "express"
 
 /**
  * Your routes loading goes here
  */
-import auth from './auth'
-import users from './users'
+import auth from './auth.js'
+import users from './users.js'
 
 export default (app: express.Application) => {
   /**

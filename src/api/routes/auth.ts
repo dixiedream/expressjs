@@ -1,8 +1,8 @@
-import auth from '../controllers/auth'
-import { APIError } from '../../shared/errors/APIError'
-import { logger } from '../../config/logger'
-import { MissingTokenError } from '../../shared/errors/AuthorizationError/MissingTokenError'
-import { InvalidTokenError } from '../../shared/errors/AuthorizationError/InvalidTokenError'
+import auth from '../controllers/auth.js'
+import { APIError } from '../../shared/errors/APIError.js'
+import { logger } from '../../config/logger.js'
+import { MissingTokenError } from '../../shared/errors/AuthorizationError/MissingTokenError.js'
+import { InvalidTokenError } from '../../shared/errors/AuthorizationError/InvalidTokenError.js'
 import { Request, Response } from "express"
 import config from "../../config/config.js"
 

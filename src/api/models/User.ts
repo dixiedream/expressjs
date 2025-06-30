@@ -1,7 +1,7 @@
 import bcrypt from 'bcryptjs'
 import Joi from 'joi'
 import mongoose, { HydratedDocument } from 'mongoose'
-import ROLES from '../../config/roles'
+import ROLES from '../../config/roles.js'
 import config from "../../config/config.js"
 
 const passwordStrongness = config.passwordStrongness

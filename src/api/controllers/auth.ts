@@ -2,70 +2,27 @@ import bcrypt from 'bcryptjs'
 import crypto from "node:crypto"
 import { sendMail } from '../../shared/sendMail.js'
 import { AuthenticationFailedError } from '../../shared/errors/AuthenticationError/AuthenticationFailedError.js'
-import { InvalidDataError } from '../../shared/errors/InvalidDataError'
-import { ResetTokenExpiredError } from '../../shared/errors/AuthenticationError/ResetTokenExpiredError'
+import { InvalidDataError } from '../../shared/errors/InvalidDataError.js'
+import { ResetTokenExpiredError } from '../../shared/errors/AuthenticationError/ResetTokenExpiredError.js'
 import { Session } from '../models/Session.js'
-import { MissingTokenError } from '../../shared/errors/AuthorizationError/MissingTokenError'
-import { verify as jwtVerify } from '../../shared/jwt'
-import { InvalidTokenError } from '../../shared/errors/AuthorizationError/InvalidTokenError'
+import { MissingTokenError } from '../../shared/errors/AuthorizationError/MissingTokenError.js'
+import { verify as jwtVerify } from '../../shared/jwt.js'
+import { InvalidTokenError } from '../../shared/errors/AuthorizationError/InvalidTokenError.js'
 import typia from "typia"
 import i18next from 'i18next'
-import { Email } from '../../types/Core'
-import { LoginDataInput } from '../../types/Requests'
-import { validateLoginData } from '../../shared/validators'
-import { IUser, UserModel } from '../models/User'
-import { HydratedDocument } from 'mongoose'
-import token from '../../shared/token'
+import { Email } from '../../types/Core.js'
+import { LoginDataInput } from '../../types/Requests.js'
+import { validateLoginData } from '../../shared/validators.js'
+import { UserModel } from '../models/User.js'
+import token from '../../shared/token.js'
 import moment from 'moment'
 
 const { JWT_REFRESH_PRIVATE_KEY, RESET_PASSWORD_URL } = process.env
 
-/**
- * Validates login data, it's different from the user validate functions
- * because you may want to pass different data
- */
-// function validate(body: unknown) {
-//   const joiModel = Joi.object<{ email: string, password: string }>({
-//     email: Joi.string()
-//       .min(5)
-//       .max(255)
-//       .required()
-//       .email()
-//       .error(new Error('email.invalid')),
-//     password: Joi.string()
-//       .regex(passwordStrongness)
-//       .error(new Error('password.invalid'))
-//   })
-//
-//   return joiModel.validate(body)
-// }
-
 const validateForgotPassword = typia.createAssertGuard<{ email: Email }>()
-// function validateForgotPassword(body: unknown) {
-//   const joiModel = Joi.object<{ email: string }>({
-//     email: Joi.string()
-//       .min(5)
-//       .max(255)
-//       .required()
-//       .email()
-//       .error(new Error('email.invalid'))
-//   })
-//
-//   return joiModel.validate(body)
-// }
 
 type ResetPasswordRequest = { password: string }
 const validateResetPassword = typia.createAssertGuard<ResetPasswordRequest>()
-// function validateResetPassword(body: unknown): Joi.ValidationResult<ResetPasswordRequest> {
-//   const joiModel = Joi.object<ResetPasswordRequest>({
-//     password: Joi.string()
-//       .regex(passwordStrongness)
-//       .required()
-//       .error(new Error('password.invalid'))
-//   })
-//
-//   return joiModel.validate(body)
-// }
 
 export default {
   authenticate: async (body: LoginDataInput) => {
