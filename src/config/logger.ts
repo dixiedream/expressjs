@@ -1,5 +1,4 @@
 import { createLogger, format, transports } from 'winston'
-require('express-async-errors')
 
 const level = process.env.NODE_ENV === 'production' ? 'info' : 'debug'
 

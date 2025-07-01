@@ -1,4 +1,4 @@
-const router = require('express').Router()
+import express from "express"
 import auth from '../../middleware/auth.js'
 import users from '../controllers/users.js'
 import { APIError } from '../../shared/errors/APIError.js'
@@ -9,6 +9,7 @@ import admin from '../../middleware/admin.js'
 import validateObjectId from '../../middleware/validateObjectId.js'
 import { AppResponse } from '../../../app.js'
 import mongoose from 'mongoose'
+const router = express.Router()
 
 /**
  * Get user data

@@ -5,8 +5,9 @@ import { MissingTokenError } from '../../shared/errors/AuthorizationError/Missin
 import { InvalidTokenError } from '../../shared/errors/AuthorizationError/InvalidTokenError.js'
 import { Request, Response } from "express"
 import config from "../../config/config.js"
+import express from "express"
 
-const router = require('express').Router()
+const router = express.Router()
 const { NODE_ENV } = process.env
 
 /**

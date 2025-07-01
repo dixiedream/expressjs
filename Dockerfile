@@ -4,6 +4,7 @@ EXPOSE 3000
 ENV TZ=Europe/Rome
 ENV NODE_ENV=production
 ENV PORT=3000
+
 RUN apk add --no-cache bash tini tzdata && \
   cp /usr/share/zoneinfo/${TZ} /etc/localtime && \
   echo "${TZ}" >  /etc/timezone && \

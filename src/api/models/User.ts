@@ -1,10 +1,6 @@
 import bcrypt from 'bcryptjs'
-import Joi from 'joi'
 import mongoose, { HydratedDocument } from 'mongoose'
 import ROLES from '../../config/roles.js'
-import config from "../../config/config.js"
-
-const passwordStrongness = config.passwordStrongness
 
 const { Schema } = mongoose
 
@@ -59,20 +55,3 @@ UserSchema.pre('save', async function hashPassword(next) {
  */
 export type UserDocument = HydratedDocument<IUser>
 export const UserModel = mongoose.model('User', UserSchema)
-export const validate = (user: unknown) => {
-  const joiModel = Joi.object<{ email: string, password: string, role: number }>({
-    email: Joi.string()
-      .min(5)
-      .max(255)
-      .required()
-      .email()
-      .error(new Error('email.invalid')),
-    password: Joi.string()
-      .regex(passwordStrongness)
-      .required()
-      .error(new Error('password.invalid')),
-    role: Joi.number().error(new Error('role.invalid'))
-  })
-
-  return joiModel.validate(user)
-}

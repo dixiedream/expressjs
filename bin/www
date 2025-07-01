@@ -6,7 +6,7 @@ import { logger } from "../dist/src/config/logger.js";
 const PORT = process.env.PORT || 3000;
 
 const server = app.listen(PORT, () => {
-  info("SERVER_STARTED", { port: PORT });
+  logger.info("SERVER_STARTED", { port: PORT });
 });
 
 //
