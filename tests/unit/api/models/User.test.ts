@@ -1,15 +1,12 @@
 import mongoose from 'mongoose'
 import { verify as jwtVerify } from '../../../../src/shared/jwt.js'
-import { UserModel } from '../../../../src/api/models/User.js'
 import { describe, it } from "node:test"
 import assert from 'node:assert'
 import tokenUtils from '../../../../src/shared/token.js'
 
 const { JWT_PRIVATE_KEY, JWT_REFRESH_PRIVATE_KEY } = process.env
 
-const payload = {
-  _id: new mongoose.Types.ObjectId().toString() // toHexString(),
-}
+const id = new mongoose.Types.ObjectId().toString() // toHexString(),
 
 describe('token.getResetPasswordToken', () => {
   it('should return ', () => {
@@ -22,18 +19,16 @@ describe('token.getResetPasswordToken', () => {
 
 describe('token.generateAuthToken', () => {
   it('should return a valid JWT', () => {
-    const user = new UserModel(payload)
-    const token = tokenUtils.generateAuthToken(user._id.toString())
+    const token = tokenUtils.generateAuthToken(id)
     const { data } = jwtVerify(token, JWT_PRIVATE_KEY ?? 'NOT_DEFINED')
-    assert.strictEqual(data.user, payload._id)
+    assert.strictEqual(data.user, id)
   })
 })
 
 describe('token.generateRefreshToken', () => {
   it('should return a valid JWT', () => {
-    const user = new UserModel(payload)
-    const token = tokenUtils.generateRefreshToken(user._id.toString())
+    const token = tokenUtils.generateRefreshToken(id)
     const { data } = jwtVerify(token, JWT_REFRESH_PRIVATE_KEY ?? 'NOT_DEFINED')
-    assert.strictEqual(data.user, payload._id)
+    assert.strictEqual(data.user, id)
   })
 })
