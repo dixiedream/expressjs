@@ -22,5 +22,11 @@
         "transform": "typia/lib/transform"
       }
     ]
-  }
+  },
+  "exclude": [
+    "./dist/",
+    "./node_modules/",
+    "./coverage",
+    "./tests"
+  ]
 }

@@ -28,7 +28,7 @@ describe(endpoint, () => {
     await Session.deleteMany({})
   })
 
-  afterAll(async () => {
+  after(async () => {
     const { connections } = mongoose
     connections.forEach((con) => {
       return con.close()

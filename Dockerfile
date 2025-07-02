@@ -9,6 +9,8 @@ RUN apk add --no-cache bash tzdata && \
   echo "${TZ}" >  /etc/timezone && \
   apk del tzdata
 
+ENV PATH=/app/node_modules/.bin:$PATH
+
 WORKDIR /app
 
 RUN npm config list
@@ -62,7 +64,6 @@ COPY . .
 RUN npm ci && npm cache clean --force
 RUN tsc -p .
 
-ENV PATH=/app/node_modules/.bin:$PATH
 
 
 

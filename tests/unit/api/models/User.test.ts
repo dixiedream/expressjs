@@ -21,7 +21,7 @@ describe('token.getResetPasswordToken', () => {
 })
 
 describe('token.generateAuthToken', () => {
-  it('should return a valid JWT', async() => {
+  it('should return a valid JWT', () => {
     const user = new UserModel(payload)
     const token = tokenUtils.generateAuthToken(user._id.toString())
     const { data } = jwtVerify(token, JWT_PRIVATE_KEY ?? 'NOT_DEFINED')

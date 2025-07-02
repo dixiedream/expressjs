@@ -6,7 +6,7 @@ import { Session } from '../../src/api/models/Session.js'
 import ROLES from '../../src/config/roles.js'
 import server from '../../app.js'
 import tokenUtils from '../../src/shared/token.js'
-import { describe, afterEach, it } from "node:test"
+import { describe, afterEach, after, it } from "node:test"
 import assert from "node:assert"
 
 const { ADMIN, USER } = ROLES
@@ -18,7 +18,7 @@ describe(endpoint, () => {
     await Session.deleteMany({})
   })
 
-  afterAll(async () => {
+  after(async () => {
     const { connections } = mongoose
     connections.forEach((con) => {
       return con.close()
