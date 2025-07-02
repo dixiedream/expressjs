@@ -26,7 +26,6 @@
     "./dist/",
     "./node_modules/",
     "./coverage",
-    "./tests",
-    "./test"
+    "./tests"
   ]
 }

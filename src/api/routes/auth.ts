@@ -3,9 +3,8 @@ import { APIError } from '../../shared/errors/APIError.js'
 import { logger } from '../../config/logger.js'
 import { MissingTokenError } from '../../shared/errors/AuthorizationError/MissingTokenError.js'
 import { InvalidTokenError } from '../../shared/errors/AuthorizationError/InvalidTokenError.js'
-import { Request, Response } from "express"
-import config from "../../config/config.js"
-import express from "express"
+import express, { Request, Response } from 'express'
+import config from '../../config/config.js'
 
 const router = express.Router()
 const { NODE_ENV } = process.env

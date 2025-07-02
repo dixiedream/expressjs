@@ -1,5 +1,5 @@
 import mongoose from 'mongoose'
-import { Request, Response, NextFunction } from "express"
+import { Request, Response, NextFunction } from 'express'
 import { NotFoundError } from '../shared/errors/NotFoundError.js'
 
 const { type, message } = new NotFoundError('Invalid ID.')

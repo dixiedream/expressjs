@@ -1,10 +1,9 @@
-import express from "express"
+import express, { Request } from 'express'
 import auth from '../../middleware/auth.js'
 import users from '../controllers/users.js'
 import { APIError } from '../../shared/errors/APIError.js'
 import { logger } from '../../config/logger.js'
 import config from '../../config/config.js'
-import { Request } from 'express'
 import admin from '../../middleware/admin.js'
 import validateObjectId from '../../middleware/validateObjectId.js'
 import { AppResponse } from '../../../app.js'
@@ -15,7 +14,7 @@ const router = express.Router()
  * Get user data
  */
 router.get('/me', auth, (req: Request, res: AppResponse) => {
-  if (res.locals.user === undefined) return res.status(400).send(req.t("error.invalidData"))
+  if (res.locals.user === undefined) return res.status(400).send(req.t('error.invalidData'))
   logger.info('ME_REQUEST', { user: res.locals.user.email })
   const user = users.getMe(res.locals.user)
   logger.info('ME_REQUEST_SUCCEEDED', { user: user.email })
@@ -26,7 +25,7 @@ router.get('/me', auth, (req: Request, res: AppResponse) => {
  * Patch logged user
  */
 router.patch('/me', auth, async (req: Request, res: AppResponse) => {
-  if (res.locals.user === undefined) return res.status(400).send(req.t("error.invalidData"))
+  if (res.locals.user === undefined) return res.status(400).send(req.t('error.invalidData'))
   logger.info('PATCH_ME_REQUEST', { user: res.locals.user.email })
   try {
     const user = await users.patchMe(res.locals.user, req.body)
@@ -75,7 +74,6 @@ router.post('/', async (req: Request, res: AppResponse) => {
       })
       .status(201)
       .send({ email, token })
-
   } catch (e: any) {
     if (e instanceof APIError) {
       const { type, message } = e
@@ -85,7 +83,6 @@ router.post('/', async (req: Request, res: AppResponse) => {
       logger.error('CREATE_USER_FAILED', e)
       res.status(500).send()
     }
-
   }
 })
 

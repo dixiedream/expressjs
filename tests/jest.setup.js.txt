@@ -1,4 +1,4 @@
-const logger = require('../src/config/logger')
+import { logger } from '../src/config/logger.js'
 
 // Disables winston API logging
 logger.transports.forEach((t) => {

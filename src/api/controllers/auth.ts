@@ -1,5 +1,5 @@
 import bcrypt from 'bcryptjs'
-import crypto from "node:crypto"
+import crypto from 'node:crypto'
 import { sendMail } from '../../shared/sendMail.js'
 import { AuthenticationFailedError } from '../../shared/errors/AuthenticationError/AuthenticationFailedError.js'
 import { InvalidDataError } from '../../shared/errors/InvalidDataError.js'
@@ -8,7 +8,7 @@ import { Session } from '../models/Session.js'
 import { MissingTokenError } from '../../shared/errors/AuthorizationError/MissingTokenError.js'
 import { verify as jwtVerify } from '../../shared/jwt.js'
 import { InvalidTokenError } from '../../shared/errors/AuthorizationError/InvalidTokenError.js'
-import typia from "typia"
+import typia from 'typia'
 import i18next from 'i18next'
 import { Email } from '../../types/Core.js'
 import { LoginDataInput } from '../../types/Requests.js'
@@ -21,7 +21,7 @@ const { JWT_REFRESH_PRIVATE_KEY, RESET_PASSWORD_URL } = process.env
 
 const validateForgotPassword = typia.createAssertGuard<{ email: Email }>()
 
-type ResetPasswordRequest = { password: string }
+interface ResetPasswordRequest { password: string }
 const validateResetPassword = typia.createAssertGuard<ResetPasswordRequest>()
 
 export default {
@@ -29,7 +29,7 @@ export default {
     validateLoginData(body)
 
     const user = await UserModel.findOne({ email: body.email }).exec()
-    if (!user) throw new AuthenticationFailedError()
+    if (user == null) throw new AuthenticationFailedError()
 
     const validPassword = await bcrypt.compare(body.password, user.password)
     if (!validPassword) {
@@ -47,7 +47,7 @@ export default {
     validateForgotPassword(body)
 
     const user = await UserModel.findOne({ email: body.email }).exec()
-    if (!user) {
+    if (user == null) {
       throw new InvalidDataError()
     }
 
@@ -81,7 +81,7 @@ export default {
     const token = cookies.refresh_token
     if (token === undefined) return {}
 
-    return Session.deleteOne({ refreshToken: token })
+    return await Session.deleteOne({ refreshToken: token })
   },
   refresh: async (cookies: Record<string, any>) => {
     const token = cookies.refresh_token
@@ -94,7 +94,7 @@ export default {
     }
 
     const session = await Session.findOne({ refreshToken: token }).lean()
-    if (!session) {
+    if (session == null) {
       throw new InvalidTokenError()
     }
 
@@ -122,7 +122,7 @@ export default {
     const hash = token.generateResetPasswordToken(clear)
 
     const user = await UserModel.findOne({ resetPasswordToken: hash, resetPasswordTokenExpiration: { $gt: new Date() } })
-    if (!user) {
+    if (user == null) {
       throw new ResetTokenExpiredError()
     }
 

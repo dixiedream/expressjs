@@ -1,5 +1,5 @@
-import { sign } from "./jwt.js";
-import config from "../config/config.js"
+import { sign } from './jwt.js'
+import config from '../config/config.js'
 import crypto from 'node:crypto'
 
 const aTokenExpiration = config.accessToken.expiresInSec
@@ -21,5 +21,5 @@ export default {
       .createHash('sha256')
       .update(data)
       .digest('hex')
-  },
+  }
 }

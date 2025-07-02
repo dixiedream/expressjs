@@ -1,5 +1,5 @@
 /** @type {import('jest').Config} */
-const config = {
+export default {
   bail: 1,
   clearMocks: true,
   collectCoverageFrom: [
@@ -19,11 +19,9 @@ const config = {
     './tests/jest.setup.js'
   ],
   roots: [
-    './src/',
+    './dist/src/',
     './tests/'
   ],
   testEnvironment: 'node',
   preset: 'ts-jest'
 }
-
-module.exports = config

@@ -1,4 +1,4 @@
-const http = require('http')
+import http from 'node:http'
 
 const options = {
   timeout: 2000,

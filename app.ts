@@ -4,9 +4,8 @@ import cookieParser from 'cookie-parser'
 import localization from './src/config/localization.js'
 import profiler from './src/middleware/profiler.js'
 import { UserDocument } from './src/api/models/User.js'
-import setupRouter from "./src/api/routes/index.js"
-import setupDb from "./src/config/db.js"
-
+import setupRouter from './src/api/routes/index.js'
+import setupDb from './src/config/db.js'
 
 export interface AppResponseLocals {
   user?: UserDocument

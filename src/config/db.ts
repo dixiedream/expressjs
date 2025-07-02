@@ -12,7 +12,7 @@ mongoose.set('strictQuery', false)
 // Db connection
 export default async () => {
   try {
-    await mongoose.connect(mongoConnection, { autoIndex, })
+    await mongoose.connect(mongoConnection, { autoIndex })
     if (NODE_ENV === 'development') {
       logger.info('DB_CONNECTED', { dbConnection: mongoConnection })
     } else {

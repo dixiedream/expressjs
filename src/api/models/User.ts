@@ -40,7 +40,7 @@ export const UserSchema = new Schema<IUser>(
 /**
  * Hooks
  */
-UserSchema.pre('save', async function hashPassword(next) {
+UserSchema.pre('save', async function hashPassword (next) {
   const user = this
   if (user.isModified('password')) {
     const salt = await bcrypt.genSalt(10)

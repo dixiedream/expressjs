@@ -1,5 +1,5 @@
 import { verify } from '../shared/jwt.js'
-import { Request, NextFunction } from "express"
+import { Request, NextFunction } from 'express'
 import { MissingTokenError } from '../shared/errors/AuthorizationError/MissingTokenError.js'
 import { InvalidTokenError } from '../shared/errors/AuthorizationError/InvalidTokenError.js'
 import { logger } from '../config/logger.js'
@@ -29,7 +29,7 @@ export default async (req: Request, res: AppResponse, next: NextFunction): Promi
     const parsedData = typeof data === 'string' ? JSON.parse(data) : data
 
     const user = await UserModel.findOne({ _id: parsedData.user })
-    if (!user) {
+    if (user == null) {
       throw new InvalidDataError()
     }
 

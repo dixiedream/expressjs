@@ -2,13 +2,13 @@ import jwt from 'jsonwebtoken'
 const { JWT_ISSUER } = process.env
 const TokenExpiredError = 'TokenExpiredError'
 
-export function sign(payload: Record<string, any>, secret: string, expiration: number) {
+export function sign (payload: Record<string, any>, secret: string, expiration: number) {
   return jwt.sign(payload, secret, {
     expiresIn: expiration
   })
 }
 
-export function verify(token: string, secret: string) {
+export function verify (token: string, secret: string) {
   try {
     const data = jwt.verify(token, secret, {
       algorithms: ['HS256'],

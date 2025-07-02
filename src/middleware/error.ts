@@ -1,5 +1,5 @@
 import { logger } from '../config/logger.js'
-import { Request, Response, NextFunction } from "express"
+import { Request, Response, NextFunction } from 'express'
 
 /**
  * Error-handling middleware always takes four arguments.

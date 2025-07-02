@@ -1,9 +1,8 @@
-/* eslint-env jest */
-const request = require('supertest')
-const mongoose = require('mongoose')
-const { User } = require('../../src/api/models/User')
-const { Session } = require('../../src/api/models/Session')
-const server = require('../../app')
+import request from 'supertest'
+import mongoose from 'mongoose'
+import { UserModel } from '../../src/api/models/User.js'
+import { Session } from '../../src/api/models/Session.js'
+import server from '../../app.js'
 const {
   refreshToken: { name: rTokenName }
 } = require('../../src/config/config')
@@ -25,7 +24,7 @@ describe(endpoint, () => {
   })
 
   afterEach(async () => {
-    await User.deleteMany({})
+    await UserModel.deleteMany({})
     await Session.deleteMany({})
   })
 
@@ -54,7 +53,7 @@ describe(endpoint, () => {
     }
 
     it('should return 200 if valid request', async () => {
-      const user = new User(userData)
+      const user = new UserModel(userData)
 
       resetToken = user.getResetPasswordToken()
       await user.save()
@@ -64,7 +63,7 @@ describe(endpoint, () => {
     })
 
     it('should return 400 if token expired', async () => {
-      const user = new User(userData)
+      const user = new UserModel(userData)
 
       resetToken = user.getResetPasswordToken()
 
@@ -96,7 +95,7 @@ describe(endpoint, () => {
     }
 
     it('should return 200 if user exists', async () => {
-      const user = await new User(userData).save()
+      const user = await new UserModel(userData).save()
       email = user.email
       const res = await exec()
       expect(res.status).toBe(200)
@@ -126,7 +125,7 @@ describe(endpoint, () => {
     it('should set the refresh token cookie as httpOnly if valid', async () => {
       email = 'johndoe@anonymous.com'
       password = 'Eisenb3rg$'
-      await new User({ email, password }).save()
+      await new UserModel({ email, password }).save()
       const res = await exec()
       const setCookie = res.headers['set-cookie'][0]
       expect(setCookie.search('HttpOnly')).not.toBe(-1)
@@ -135,7 +134,7 @@ describe(endpoint, () => {
     it('should set the refresh token cookie if valid', async () => {
       email = 'johndoe@anonymous.com'
       password = 'Eisenb3rg$'
-      await new User({ email, password }).save()
+      await new UserModel({ email, password }).save()
       const res = await exec()
       const setCookie = res.headers['set-cookie'][0]
       const rToken = setCookie.split(';')[0].split('=')[1]
@@ -145,7 +144,7 @@ describe(endpoint, () => {
     it('should return the access token if valid', async () => {
       email = 'johndoe@anonymous.com'
       password = 'Eisenb3rg$'
-      await new User({ email, password }).save()
+      await new UserModel({ email, password }).save()
       const res = await exec()
       expect(res.body).toHaveProperty('token')
     })
@@ -153,14 +152,14 @@ describe(endpoint, () => {
     it('should return 200 if valid', async () => {
       email = 'johndoe@anonymous.com'
       password = 'Eisenb3rg$'
-      await new User({ email, password }).save()
+      await new UserModel({ email, password }).save()
       const res = await exec()
       expect(res.status).toBe(200)
     })
 
     it('should return 400 if password is not valid', async () => {
       email = 'johndoe@anonymous.com'
-      await new User({ email, password: 'vforrevenge' }).save()
+      await new UserModel({ email, password: 'vforrevenge' }).save()
       password = 'rememberthefifth'
       const res = await exec()
       expect(res.status).toBe(400)
@@ -210,7 +209,7 @@ describe(endpoint, () => {
     }
 
     it('should refresh the access token if valid', async () => {
-      const user = await new User({
+      const user = await new UserModel({
         email: 'abc@abc.com',
         password: 'Eisenb3rg$'
       }).save()
@@ -224,7 +223,7 @@ describe(endpoint, () => {
     })
 
     it('should return 403 if token not been found', async () => {
-      const user = await new User({
+      const user = await new UserModel({
         email: 'abc@abc.com',
         password: 'Eisenb3rg$'
       })
@@ -235,7 +234,7 @@ describe(endpoint, () => {
     })
 
     it('should return 200 if token is valid', async () => {
-      const user = await new User({
+      const user = await new UserModel({
         email: 'abc@abc.com',
         password: 'Eisenb3rg$'
       }).save()

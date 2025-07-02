@@ -17,8 +17,7 @@ interface PatchPasswordInput {
   newPassword: Password
 }
 
-async function patchPassword(user: UserDocument, oldPassword: string, newPassword: string) {
-
+async function patchPassword (user: UserDocument, oldPassword: string, newPassword: string) {
   typia.assertGuard<PatchPasswordInput>({ oldPassword, newPassword })
 
   const validPassword = await bcrypt.compare(oldPassword, user.password)
@@ -38,7 +37,7 @@ export default {
     validateLoginData(body)
 
     let user = await UserModel.findOne({ email: body.email })
-    if (user) throw new UserExistsError()
+    if (user != null) throw new UserExistsError()
 
     user = new UserModel({
       email: body.email,
@@ -76,7 +75,7 @@ export default {
   },
   patch: async (userID: mongoose.Types.ObjectId, body: { role?: number }) => {
     const user = await UserModel.findOne({ _id: userID })
-    if (!user) {
+    if (user == null) {
       throw new NotFoundError()
     }
 
