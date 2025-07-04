@@ -1,13 +1,10 @@
-# Use only for development
-version: "2.4"
-
 services:
   tests:
     build:
       context: ./
       target: test
     image: expressjs-tests
-    command: jest ./tests/* --colors --runInBand --watchAll #--verbose
+    command: borp #--verbose
     environment:
       - JWT_PRIVATE_KEY=testSecret
       - JWT_REFRESH_PRIVATE_KEY=testSecret
