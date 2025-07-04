@@ -1,6 +1,6 @@
-import bcrypt from 'bcryptjs'
 import mongoose, { HydratedDocument } from 'mongoose'
 import ROLES from '../../config/roles.js'
+import passwordUtils, { LEGACY_ENCRYPTION_TYPES, PASSWORD_ENCRYPTION_DEFAULT, PasswordEncryption } from '../../shared/passwordUtils.js'
 
 const { Schema } = mongoose
 
@@ -8,6 +8,7 @@ export interface IUser {
   createdAt: Date
   email: string
   password: string
+  passwordEncryption: PasswordEncryption
   role: number
   resetPasswordToken?: string
   resetPasswordTokenExpiration?: Date
@@ -23,6 +24,11 @@ export const UserSchema = new Schema<IUser>(
     password: {
       type: String,
       required: true
+    },
+    passwordEncryption: {
+      type: String,
+      enum: ['bcrypt', 'argon2id'],
+      default: PASSWORD_ENCRYPTION_DEFAULT
     },
     role: {
       type: Number,
@@ -43,8 +49,12 @@ export const UserSchema = new Schema<IUser>(
 UserSchema.pre('save', async function hashPassword (next) {
   const user = this
   if (user.isModified('password')) {
-    const salt = await bcrypt.genSalt(10)
-    const hashedPsw = await bcrypt.hash(user.password, salt)
+    let passwordEncryption = user.passwordEncryption
+    if (LEGACY_ENCRYPTION_TYPES.includes(passwordEncryption)) {
+      passwordEncryption = PASSWORD_ENCRYPTION_DEFAULT
+      user.passwordEncryption = passwordEncryption
+    }
+    const hashedPsw = await passwordUtils.hash(user.password, passwordEncryption)
     user.password = hashedPsw
   }
   next()

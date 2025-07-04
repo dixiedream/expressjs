@@ -6,9 +6,9 @@
   "type": "module",
   "scripts": {
     "prepare": "ts-patch install",
-    "test": "NODE_ENV=test borp",
+    "test": "NODE_ENV=test borp --concurrency 1",
     "posttest": "npm run lint",
-    "coverage": "NODE_ENV=test borp --coverage",
+    "coverage": "NODE_ENV=test borp --coverage --concurrency 1",
     "lint": "eslint",
     "fix": "eslint --fix",
     "start": "tsc -p . && node ./bin/www",
@@ -23,7 +23,8 @@
   "author": "Alessandro Lucarini",
   "license": "ISC",
   "dependencies": {
-    "bcryptjs": "^2.4.3",
+    "argon2": "^0.43.0",
+    "bcryptjs": "^3",
     "compression": "^1.7.4",
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",

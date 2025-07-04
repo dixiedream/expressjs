@@ -15,11 +15,12 @@ const JWT_PRIVATE_KEY = process.env.JWT_PRIVATE_KEY ?? 'NOT_DEFINED'
 export default async (req: Request, res: AppResponse, next: NextFunction): Promise<void> => {
   try {
     const header = req.header(TOKEN_NAME)
-    const token = header !== undefined && header[0].replace('Bearer ', '')
+    const token = header?.replace('Bearer ', '')
     if (!token) {
       throw new MissingTokenError()
     }
 
+    logger.debug('Verifying token...', { token })
     const { data, expired, valid } = verify(token, JWT_PRIVATE_KEY)
     if (expired || !valid) {
       throw new InvalidTokenError()

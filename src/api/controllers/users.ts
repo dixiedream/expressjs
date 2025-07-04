@@ -1,4 +1,3 @@
-import bcrypt from 'bcryptjs'
 import { UserDocument, UserModel } from '../models/User.js'
 import { Session } from '../models/Session.js'
 import { UserExistsError } from '../../shared/errors/UserError/UserExistsError.js'
@@ -10,7 +9,8 @@ import { Password } from '../../types/Core.js'
 import mongoose from 'mongoose'
 import { LoginDataInput } from '../../types/Requests.js'
 import { validateLoginData } from '../../shared/validators.js'
-import token from '../../shared/token.js'
+import token from '../../shared/tokenUtils.js'
+import passwordUtils from '../../shared/passwordUtils.js'
 
 interface PatchPasswordInput {
   oldPassword: Password
@@ -20,7 +20,7 @@ interface PatchPasswordInput {
 async function patchPassword (user: UserDocument, oldPassword: string, newPassword: string): Promise<UserDocument> {
   typia.assertGuard<PatchPasswordInput>({ oldPassword, newPassword })
 
-  const validPassword = await bcrypt.compare(oldPassword, user.password)
+  const validPassword = await passwordUtils.verify(oldPassword, user.password, user.passwordEncryption)
   if (!validPassword) {
     throw new InvalidDataError('oldPassword.invalid')
   }
