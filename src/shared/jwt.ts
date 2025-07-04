@@ -4,7 +4,8 @@ const TokenExpiredError = 'TokenExpiredError'
 
 export function sign (payload: Record<string, any>, secret: string, expiration: number) {
   return jwt.sign(payload, secret, {
-    expiresIn: expiration
+    expiresIn: expiration,
+    issuer: JWT_ISSUER ?? 'localhost'
   })
 }
 

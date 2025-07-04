@@ -2,25 +2,31 @@
   "$schema": "https://json.schemastore.org/tsconfig",
   "display": "base",
   "compilerOptions": {
-    "outDir": "./dist",
-    "rootDir": "./",
-    "lib": [
-      "es2023"
-    ],
-    "module": "nodenext",
-    "target": "es2022",
     "declaration": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
+    "incremental": true,
+    "isolatedModules": true,
+    "lib": ["ESNext"],
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "newLine": "lf",
+    "noFallthroughCasesInSwitch": true,
+    "noUnusedLocals": true,
+    "outDir": "./dist",
+    "plugins": [{ "transform": "typia/lib/transform"}],
+    "removeComments": true,
+    "resolveJsonModule": true,
+    "rootDir": "./",
     "skipLibCheck": true,
+    "sourceMap": true,
     "strict": true,
     "strictNullChecks": true,
-    "moduleResolution": "node16",
-    "incremental": true,
-    "plugins": [
-      {
-        "transform": "typia/lib/transform"
-      }
-    ]
-  }
+    "target": "es2022"
+  },
+  "exclude": [
+    "./dist/",
+    "./node_modules/",
+    "./coverage"
+  ]
 }

@@ -18,9 +18,9 @@ const server = app.listen(PORT, () => {
 // a graceful shutdown of node process
 //
 
-const sockets: Socket[] = []
+const sockets: Map<number, Socket> = new Map()
 
-function waitForSocketsToClose (counter: number) {
+function waitForSocketsToClose (counter: number): true | NodeJS.Timeout {
   if (counter > 0) {
     logger.info(
       `Waiting ${counter} more ${
@@ -39,7 +39,7 @@ function waitForSocketsToClose (counter: number) {
 }
 
 // shut down server
-function shutdown () {
+function shutdown (): void {
   waitForSocketsToClose(10)
 
   server.close(function onServerClosed (err) {
@@ -66,9 +66,9 @@ process.on('SIGTERM', () => {
 let nextSocketId = 0
 server.on('connection', (socket) => {
   const socketId = nextSocketId++
-  sockets[socketId] = socket
+  sockets.set(socketId, socket)
 
   socket.once('close', () => {
-    delete sockets[socketId]
+    sockets.delete(socketId)
   })
 })

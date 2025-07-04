@@ -6,15 +6,13 @@
   "type": "module",
   "scripts": {
     "prepare": "ts-patch install",
-    "test": "NODE_ENV=test borp \"**/*.test.ts\"",
+    "test": "NODE_ENV=test borp",
     "posttest": "npm run lint",
     "coverage": "NODE_ENV=test borp --coverage",
-    "lint": "ts-standard",
-    "fix": "ts-standard --fix",
+    "lint": "eslint",
+    "fix": "eslint --fix",
     "start": "tsc -p . && node ./bin/www",
-    "build": "tsc -p .",
-    "old-test": "NODE_ENV=test jest ./tests/integration/* -b --coverage --maxWorkers=1",
-    "old-start": "node ./bin/www"
+    "build": "tsc -p ."
   },
   "keywords": [
     "nodejs",
@@ -52,9 +50,9 @@
     "@types/nodemailer": "^6.4.15",
     "@types/supertest": "^6.0.3",
     "borp": "^0.20.0",
+    "eslint": "^9.30.1",
+    "neostandard": "^0.12.2",
     "supertest": "^7",
-    "ts-patch": "^3.3.0",
-    "ts-standard": "^12.0.2",
-    "typescript": "~5.8.3"
+    "ts-patch": "^3.3.0"
   }
 }

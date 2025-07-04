@@ -6,6 +6,7 @@ import profiler from './src/middleware/profiler.js'
 import { UserDocument } from './src/api/models/User.js'
 import setupRouter from './src/api/routes/index.js'
 import setupDb from './src/config/db.js'
+import setupProd from './src/config/prod.js'
 
 export interface AppResponseLocals {
   user?: UserDocument
@@ -17,8 +18,7 @@ export type AppResponse<T = any> = express.Response<T, AppResponseLocals>
 const app = express()
 
 if (process.env.NODE_ENV === 'production') {
-  // eslint-disable-next-line global-require
-  require('./src/config/prod')(app)
+  setupProd(app)
 }
 
 //  Middlewares

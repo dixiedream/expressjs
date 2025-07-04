@@ -16,7 +16,34 @@ interface SendMailParams {
   text: string
 }
 
-export const sendMail = async ({ email, subject, text }: SendMailParams): Promise<void> => {
+interface Message {
+  from: string
+  to: string
+  subject: string
+  text: string
+  html: string
+}
+
+async function nodeMailerSend (message: Message): Promise<string> {
+  const port = SMTP_PORT ?? '465'
+
+  const transportOptions = {
+    host: SMTP_HOST ?? 'localhost',
+    port: parseInt(port),
+    secure: parseInt(port) === 465,
+    auth: {
+      user: SMTP_USERNAME,
+      pass: SMTP_PASSWORD
+    }
+  }
+
+  const transporter = nodemailer.createTransport(transportOptions)
+  const info = await transporter.sendMail(message)
+
+  return info.messageId
+}
+
+export const sendMail = async ({ email, subject, text }: SendMailParams, transport: 'nodemailer' | 'console' = 'nodemailer'): Promise<void> => {
   logger.info('SEND_MESSAGE_REQUEST', { email, subject })
 
   const message = {
@@ -27,22 +54,19 @@ export const sendMail = async ({ email, subject, text }: SendMailParams): Promis
     html: text
   }
 
-  const port = SMTP_PORT ?? '465'
+  if (process.env.NODE_ENV === 'test') transport = 'console'
 
-  const transport = {
-    host: SMTP_HOST,
-    port: parseInt(port),
-    secure: parseInt(port) === 465,
-    auth: {
-      user: SMTP_USERNAME,
-      pass: SMTP_PASSWORD
-    }
-  }
-
-  const transporter = nodemailer.createTransport(transport)
   try {
-    const info = await transporter.sendMail(message)
-    logger.info('SEND_MESSAGE_SUCCEEDED', { messageId: info.messageId })
+    let messageId = 'NOT_SENT'
+    switch (transport) {
+      case 'nodemailer':
+        messageId = await nodeMailerSend(message)
+        break
+      case 'console':
+        logger.info('Sending message...', { to: email, from: message.from, subject, body: message.text })
+        break
+    }
+    logger.info('SEND_MESSAGE_SUCCEEDED', { messageId })
   } catch (err: any) {
     logger.error('SEND_MESSAGE_FAILED', { err: err.toString() })
   }

@@ -1,7 +1,0 @@
-import { logger } from '../src/config/logger.js'
-
-// Disables winston API logging
-logger.transports.forEach((t) => {
-  // eslint-disable-next-line no-param-reassign
-  t.silent = true
-})

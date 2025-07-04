@@ -1,13 +1,12 @@
 import request from 'supertest'
 import mongoose from 'mongoose'
-// import bcrypt from 'bcryptjs'
 import { UserModel } from '../../src/api/models/User.js'
 import { Session } from '../../src/api/models/Session.js'
 import ROLES from '../../src/config/roles.js'
 import server from '../../app.js'
 import tokenUtils from '../../src/shared/token.js'
-import { describe, afterEach, after, it } from "node:test"
-import assert from "node:assert"
+import { describe, afterEach, after, it } from 'node:test'
+import assert from 'node:assert'
 
 const { ADMIN, USER } = ROLES
 const endpoint = '/api/users'
@@ -20,10 +19,10 @@ describe(endpoint, () => {
 
   after(async () => {
     const { connections } = mongoose
-    connections.forEach((con) => {
-      return con.close()
+    connections.forEach(async (con) => {
+      return await con.close()
     })
-    return mongoose.disconnect()
+    await mongoose.disconnect()
   })
 
   describe('POST /', () => {
@@ -31,7 +30,7 @@ describe(endpoint, () => {
     let password: string | undefined
 
     const exec = async () => {
-      return request(server).post(endpoint).send({ email, password })
+      return await request(server).post(endpoint).send({ email, password })
     }
 
     it('should save the user if valid', async () => {
@@ -75,7 +74,7 @@ describe(endpoint, () => {
     let token: string | undefined
 
     const exec = async () => {
-      return request(server)
+      return await request(server)
         .get(endpoint)
         .set('Authorization', `Bearer ${token}`)
         .send()

@@ -26,7 +26,6 @@ CMD ["sh"]
 
 
 
-
 FROM dev AS test
 USER root
 ENV NODE_ENV=development
@@ -36,11 +35,9 @@ ENV JWT_ISSUER=https://dummy.issuer.com
 COPY . .
 RUN npm install \
   && npm cache clean --force
-RUN standard
-RUN jest ./tests/unit/*
-# To run with docker-compose
-CMD [ "jest", "./tests/integration/*", "-b", "--ci", "--coverage", "--maxWorkers=1" ]
-
+RUN eslint
+#CMD [ "jest", "./tests/integration/*", "-b", "--ci", "--coverage", "--maxWorkers=1" ]
+CMD ["borp", "--coverage"]
 
 
 

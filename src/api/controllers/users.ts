@@ -17,7 +17,7 @@ interface PatchPasswordInput {
   newPassword: Password
 }
 
-async function patchPassword (user: UserDocument, oldPassword: string, newPassword: string) {
+async function patchPassword (user: UserDocument, oldPassword: string, newPassword: string): Promise<UserDocument> {
   typia.assertGuard<PatchPasswordInput>({ oldPassword, newPassword })
 
   const validPassword = await bcrypt.compare(oldPassword, user.password)
@@ -33,8 +33,12 @@ async function patchPassword (user: UserDocument, oldPassword: string, newPasswo
 }
 
 export default {
-  register: async (body: LoginDataInput) => {
-    validateLoginData(body)
+  register: async (body: LoginDataInput): Promise<{ token: string, email: string, refreshToken: string }> => {
+    try {
+      validateLoginData(body)
+    } catch (e: any) {
+      throw new InvalidDataError(e)
+    }
 
     let user = await UserModel.findOne({ email: body.email })
     if (user != null) throw new UserExistsError()
@@ -53,16 +57,16 @@ export default {
 
     return { token: accessToken, email: user.email, refreshToken: rToken }
   },
-  getMe: (user: UserDocument) => {
+  getMe: (user: UserDocument): { email: string, role: number, createdAt: Date } => {
     return {
       email: user.email,
       role: user.role,
       createdAt: user.createdAt
     }
   },
-  patchMe: async (user: UserDocument, body: PatchPasswordInput) => {
+  patchMe: async (user: UserDocument, body: PatchPasswordInput): Promise<{ email: string, role: number, createdAt: Date }> => {
     let updatedUser = user
-    if (body.oldPassword && body.newPassword) {
+    if (body.oldPassword !== undefined && body.newPassword !== undefined) {
       const { oldPassword, newPassword } = body
       updatedUser = await patchPassword(updatedUser, oldPassword, newPassword)
     }
@@ -73,13 +77,13 @@ export default {
       createdAt: updatedUser.createdAt
     }
   },
-  patch: async (userID: mongoose.Types.ObjectId, body: { role?: number }) => {
+  patch: async (userID: mongoose.Types.ObjectId, body: { role?: number }): Promise<{ email: string, role: number, createdAt: Date }> => {
     const user = await UserModel.findOne({ _id: userID })
     if (user == null) {
       throw new NotFoundError()
     }
 
-    if (body.role) {
+    if (body.role !== undefined) {
       if (!Object.values(ROLES).includes(body.role)) {
         throw new InvalidDataError()
       }
@@ -93,7 +97,7 @@ export default {
       createdAt: user.createdAt
     }
   },
-  all: async () => {
+  all: async (): Promise<UserDocument[]> => {
     const users = await UserModel.find().select('-password -__v')
     return users
   }

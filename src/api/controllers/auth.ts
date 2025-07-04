@@ -14,10 +14,11 @@ import { Email } from '../../types/Core.js'
 import { LoginDataInput } from '../../types/Requests.js'
 import { validateLoginData } from '../../shared/validators.js'
 import { UserModel } from '../models/User.js'
-import token from '../../shared/token.js'
+import tokenUtils from '../../shared/token.js'
 import moment from 'moment'
 
-const { JWT_REFRESH_PRIVATE_KEY, RESET_PASSWORD_URL } = process.env
+const JWT_REFRESH_PRIVATE_KEY = process.env.JWT_REFRESH_PRIVATE_KEY ?? 'NOT_DEFINED'
+const RESET_PASSWORD_URL = process.env.RESET_PASSWORD_URL ?? 'localhost'
 
 const validateForgotPassword = typia.createAssertGuard<{ email: Email }>()
 
@@ -26,7 +27,11 @@ const validateResetPassword = typia.createAssertGuard<ResetPasswordRequest>()
 
 export default {
   authenticate: async (body: LoginDataInput) => {
-    validateLoginData(body)
+    try {
+      validateLoginData(body)
+    } catch (e: any) {
+      throw new InvalidDataError(e)
+    }
 
     const user = await UserModel.findOne({ email: body.email }).exec()
     if (user == null) throw new AuthenticationFailedError()
@@ -36,15 +41,19 @@ export default {
       throw new AuthenticationFailedError()
     }
 
-    const aToken = token.generateAuthToken(user._id.toString())
-    const rToken = token.generateRefreshToken(user._id.toString())
+    const aToken = tokenUtils.generateAuthToken(user._id.toString())
+    const rToken = tokenUtils.generateRefreshToken(user._id.toString())
     await Session.deleteMany({ user: user._id })
     await Session.create({ refreshToken: rToken, user: user._id })
 
     return { token: aToken, refreshToken: rToken }
   },
   forgotPassword: async (body: { email: string }, t: typeof i18next.t) => {
-    validateForgotPassword(body)
+    try {
+      validateForgotPassword(body)
+    } catch (e: any) {
+      throw new InvalidDataError(e)
+    }
 
     const user = await UserModel.findOne({ email: body.email }).exec()
     if (user == null) {
@@ -52,7 +61,7 @@ export default {
     }
 
     const clear = crypto.randomBytes(20).toString('hex')
-    user.resetPasswordToken = token.generateResetPasswordToken(clear)
+    user.resetPasswordToken = tokenUtils.generateResetPasswordToken(clear)
     user.resetPasswordTokenExpiration = moment().add({ minutes: 10 }).toDate()
 
     await user.save()
@@ -85,10 +94,10 @@ export default {
   },
   refresh: async (cookies: Record<string, any>) => {
     const token = cookies.refresh_token
-    if (!token) {
+    if (token === undefined) {
       throw new MissingTokenError()
     }
-    const { data, valid } = jwtVerify(token, JWT_REFRESH_PRIVATE_KEY ?? 'NOT_DEFINED')
+    const { data, valid } = jwtVerify(token, JWT_REFRESH_PRIVATE_KEY)
     if (!valid) {
       throw new InvalidTokenError()
     }
@@ -98,28 +107,32 @@ export default {
       throw new InvalidTokenError()
     }
 
-    let { user } = data
-    user = await UserModel.findOne({
-      _id: user
+    const { user: userId } = data
+    const user = await UserModel.findOne({
+      _id: userId
     })
 
-    if (!user) {
+    if (user == null) {
       throw new InvalidTokenError()
     }
 
-    const authToken = user.generateAuthToken()
+    const authToken = tokenUtils.generateAuthToken(user._id.toString())
     return {
       token: authToken
     }
   },
   resetPassword: async (body: ResetPasswordRequest, clear?: string) => {
-    validateResetPassword(body)
+    try {
+      validateResetPassword(body)
+    } catch (e: any) {
+      throw new InvalidDataError(e)
+    }
 
     if (clear === undefined) {
       throw new InvalidDataError('resetPassword.missingTokenError')
     }
 
-    const hash = token.generateResetPasswordToken(clear)
+    const hash = tokenUtils.generateResetPasswordToken(clear)
 
     const user = await UserModel.findOne({ resetPasswordToken: hash, resetPasswordTokenExpiration: { $gt: new Date() } })
     if (user == null) {
@@ -132,8 +145,8 @@ export default {
 
     await user.save()
 
-    const authToken = token.generateAuthToken(user._id.toString())
-    const rToken = token.generateRefreshToken(user._id.toString())
+    const authToken = tokenUtils.generateAuthToken(user._id.toString())
+    const rToken = tokenUtils.generateRefreshToken(user._id.toString())
     await Session.deleteMany({ user: user._id })
     await Session.create({ refreshToken: rToken, user: user._id })
 
