@@ -60,3 +60,7 @@ test.env
 
 # next.js build output
 .next
+
+# typescript build file
+dist
+package-lock.json

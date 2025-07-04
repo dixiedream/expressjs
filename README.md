@@ -1,8 +1,6 @@
 # Express.js
 Boilerplate for creating nodejs app using Docker multistage build
 
-[![tested with jest](https://img.shields.io/badge/tested_with-jest-99424f.svg)](https://github.com/facebook/jest) [![jest](https://jestjs.io/img/jest-badge.svg)](https://github.com/facebook/jest)
-
 ## Application structure
 
 ```
@@ -17,7 +15,7 @@ tests/ # tests for controllers, models, other logical units - within properly re
 
 ## Code style
 
-Follow [Airbnb style guide](https://github.com/airbnb/javascript). [ESLint](http://eslint.org/) together with [Airbnb base config](https://www.npmjs.com/package/eslint-config-airbnb-base) is set-up to lint your code.
+Following the old StandardJs now embraced by [neostandard](https://github.com/neostandard/neostandard) team
 
 ## Setup
 
@@ -30,7 +28,7 @@ Follow [Airbnb style guide](https://github.com/airbnb/javascript). [ESLint](http
 
 ## Extra
 
-To connect with a GUI to the dev mongo db instance use [MongoDb Express](https://www.mongodb.com/download-center/compass) provided at `localhost:8081`
+To connect with a GUI to the dev mongo db instance use MongoDb Express provided at `localhost:8081`
 
 ## Contributing
 
