@@ -59,7 +59,7 @@ describe(endpoint, () => {
     it('should not register the user if empty body', async () => {
       email = undefined
       password = undefined
-      const res = await request(server).post(endpoint)
+      const res = await request(server).post(endpoint).send()
 
       assert.strictEqual(res.status, 400)
     })

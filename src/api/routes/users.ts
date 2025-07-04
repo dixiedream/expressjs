@@ -13,8 +13,11 @@ const router = express.Router()
 /**
  * Get user data
  */
-router.get('/me', auth, (req: Request, res: AppResponse) => {
-  if (res.locals.user === undefined) return res.status(400).send(req.t('error.invalidData'))
+router.get('/me', auth, async (req: Request, res: AppResponse) => {
+  if (res.locals.user === undefined) {
+    res.status(400).send(req.t('error.invalidData'))
+    return
+  }
   logger.info('ME_REQUEST', { user: res.locals.user.email })
   const user = users.getMe(res.locals.user)
   logger.info('ME_REQUEST_SUCCEEDED', { user: user.email })
@@ -25,7 +28,10 @@ router.get('/me', auth, (req: Request, res: AppResponse) => {
  * Patch logged user
  */
 router.patch('/me', auth, async (req: Request, res: AppResponse) => {
-  if (res.locals.user === undefined) return res.status(400).send(req.t('error.invalidData'))
+  if (res.locals.user === undefined) {
+    res.status(400).send(req.t('error.invalidData'))
+    return
+  }
   logger.info('PATCH_ME_REQUEST', { user: res.locals.user.email })
   try {
     const user = await users.patchMe(res.locals.user, req.body)
@@ -34,10 +40,10 @@ router.patch('/me', auth, async (req: Request, res: AppResponse) => {
   } catch (e: any) {
     if (e instanceof APIError) {
       const { type, message } = e
-      logger.info('PATCH_ME_FAILED', { type, email: res.locals.user.email })
+      logger.error('PATCH_ME_FAILED', { type, email: res.locals.user.email, e })
       res.status(400).send({ type, message: req.t(message) })
     } else {
-      logger.error('PATCH_ME_FAILED', e)
+      logger.crit('PATCH_ME_FAILED', e)
       res.status(500).send()
     }
   }
@@ -53,7 +59,7 @@ router.get('/', [auth, admin], async (_req: Request, res: AppResponse) => {
     logger.info('USERS_SUCCEEDED', { users: result.length })
     res.status(200).send(result)
   } catch (e: any) {
-    logger.error('USERS_FAILED', e)
+    logger.crit('USERS_FAILED', e)
     res.status(500).send()
   }
 })
@@ -77,7 +83,7 @@ router.post('/', async (req: Request, res: AppResponse) => {
   } catch (e: any) {
     if (e instanceof APIError) {
       const { type, message } = e
-      logger.info('CREATE_USER_FAILED', { type, email: req.body.email })
+      logger.error('CREATE_USER_FAILED', { type, email: req.body.email, e })
       res.status(400).send({ type, message: req.t(message) })
     } else {
       logger.error('CREATE_USER_FAILED', e)
@@ -99,10 +105,10 @@ router.patch('/:id', [auth, admin, validateObjectId], async (req: Request, res: 
   } catch (e: any) {
     if (e instanceof APIError) {
       const { type, message } = e
-      logger.info('PATCH_USER_FAILED', { type, user: id })
+      logger.error('PATCH_USER_FAILED', { type, user: id, e })
       res.status(400).send({ type, message: req.t(message) })
     } else {
-      logger.error('PATCH_USER_FAILED', e)
+      logger.crit('PATCH_USER_FAILED', e)
       res.status(500).send()
     }
   }

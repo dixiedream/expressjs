@@ -28,7 +28,7 @@ router.post('/', async (req: Request, res: Response) => {
   } catch (e: any) {
     if (e instanceof APIError) {
       const { type, message } = e
-      logger.info('AUTHENTICATION_FAILED', { email: req.body.email, type })
+      logger.error('AUTHENTICATION_FAILED', { email: req.body.email, type, e })
       res.status(400).send({ type, message: req.t(message) })
     } else {
       logger.error('AUTHENTICATION_FAILED', e)
@@ -68,10 +68,10 @@ router.post('/refresh', async (req: Request, res: Response) => {
     res.status(200).send(data)
   } catch (e: any) {
     if (e instanceof MissingTokenError) {
-      logger.info('AUTH_REFRESH_FAILED')
+      logger.error('AUTH_REFRESH_FAILED', e)
       res.status(401).send({ message: req.t(e.message) })
     } else if (e instanceof InvalidTokenError) {
-      logger.info('AUTH_REFRESH_FAILED')
+      logger.error('AUTH_REFRESH_FAILED', e)
       res.status(403).send({ message: req.t(e.message) })
     } else {
       logger.error('AUTH_REFRESH_FAILED', e)
