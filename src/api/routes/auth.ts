@@ -15,7 +15,7 @@ const { NODE_ENV } = process.env
 router.post('/', async (req: Request, res: Response) => {
   logger.info('AUTHENTICATION_REQUEST', { email: req.body.email })
   try {
-    const { token, refreshToken } = await auth.authenticate(req.body)
+    const { token, refreshToken } = await auth.authenticate(req.body ?? {})
     logger.info('AUTHENTICATION_SUCCEDED', { email: req.body.email })
     res
       .cookie(config.refreshToken.name, refreshToken, {
@@ -86,7 +86,7 @@ router.post('/refresh', async (req: Request, res: Response) => {
 router.post('/forgotPassword', async (req: Request, res: Response) => {
   logger.info('FORGOT_PASSWORD_REQUEST', { body: req.body })
   try {
-    const message = await auth.forgotPassword(req.body, req.t)
+    const message = await auth.forgotPassword(req.body ?? {}, req.t)
     logger.info('FORGOT_PASSWORD_SUCCEDED', { email: req.body.email })
     res.status(200).send(message)
   } catch (e: any) {
@@ -108,7 +108,7 @@ router.patch('/resetPassword/:token', async (req: Request, res: Response) => {
     token: req.params.token
   })
   try {
-    const { email, token, refreshToken } = await auth.resetPassword(req.body, req.params.token)
+    const { email, token, refreshToken } = await auth.resetPassword(req.body ?? {}, req.params.token)
     logger.info('RESET_PASSWORD_SUCCEDED', { user: email })
     res
       .cookie(config.refreshToken.name, refreshToken, {

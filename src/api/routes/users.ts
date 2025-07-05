@@ -34,7 +34,7 @@ router.patch('/me', auth, async (req: Request, res: AppResponse) => {
   }
   logger.info('PATCH_ME_REQUEST', { user: res.locals.user.email })
   try {
-    const user = await users.patchMe(res.locals.user, req.body)
+    const user = await users.patchMe(res.locals.user, req.body ?? {})
     logger.info('PATCH_ME_SUCCEEDED', { user: res.locals.user.email })
     res.status(200).send(user)
   } catch (e: any) {
@@ -43,7 +43,7 @@ router.patch('/me', auth, async (req: Request, res: AppResponse) => {
       logger.error('PATCH_ME_FAILED', { type, email: res.locals.user.email, e })
       res.status(400).send({ type, message: req.t(message) })
     } else {
-      logger.crit('PATCH_ME_FAILED', e)
+      logger.error('PATCH_ME_FAILED', e)
       res.status(500).send()
     }
   }
@@ -59,7 +59,7 @@ router.get('/', [auth, admin], async (_req: Request, res: AppResponse) => {
     logger.info('USERS_SUCCEEDED', { users: result.length })
     res.status(200).send(result)
   } catch (e: any) {
-    logger.crit('USERS_FAILED', e)
+    logger.error('USERS_FAILED', e)
     res.status(500).send()
   }
 })
@@ -68,9 +68,9 @@ router.get('/', [auth, admin], async (_req: Request, res: AppResponse) => {
  * Register a new user
  */
 router.post('/', async (req: Request, res: AppResponse) => {
-  logger.info('CREATE_USER_REQUEST', { email: req.body.email })
+  logger.info('CREATE_USER_REQUEST', { email: req.body?.email })
   try {
-    const { token, email, refreshToken } = await users.register(req.body)
+    const { token, email, refreshToken } = await users.register(req.body ?? {})
     logger.info('CREATE_USER_SUCCEDED', { email })
     res
       .cookie(config.refreshToken.name, refreshToken, {
@@ -83,7 +83,7 @@ router.post('/', async (req: Request, res: AppResponse) => {
   } catch (e: any) {
     if (e instanceof APIError) {
       const { type, message } = e
-      logger.error('CREATE_USER_FAILED', { type, email: req.body.email, e })
+      logger.error('CREATE_USER_FAILED', { type, email: req.body?.email, e })
       res.status(400).send({ type, message: req.t(message) })
     } else {
       logger.error('CREATE_USER_FAILED', e)
@@ -99,7 +99,7 @@ router.patch('/:id', [auth, admin, validateObjectId], async (req: Request, res: 
   const { id } = req.params
   logger.info('PATCH_USER_REQUEST', { user: id })
   try {
-    const user = await users.patch(new mongoose.Types.ObjectId(id), req.body)
+    const user = await users.patch(new mongoose.Types.ObjectId(id), req.body ?? {})
     logger.info('PATCH_USER_SUCCEEDED', { user: id })
     res.status(200).send(user)
   } catch (e: any) {
@@ -108,7 +108,7 @@ router.patch('/:id', [auth, admin, validateObjectId], async (req: Request, res: 
       logger.error('PATCH_USER_FAILED', { type, user: id, e })
       res.status(400).send({ type, message: req.t(message) })
     } else {
-      logger.crit('PATCH_USER_FAILED', e)
+      logger.error('PATCH_USER_FAILED', e)
       res.status(500).send()
     }
   }
