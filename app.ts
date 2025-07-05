@@ -1,4 +1,4 @@
-import express from 'express'
+import express, { Response } from 'express'
 import cors from 'cors'
 import cookieParser from 'cookie-parser'
 import localization from './src/config/localization.js'
@@ -13,7 +13,7 @@ export interface AppResponseLocals {
   token?: string
 }
 
-export type AppResponse<T = any> = express.Response<T, AppResponseLocals>
+export type AppResponse<T = any> = Response<T, AppResponseLocals>
 
 const app = express()
 

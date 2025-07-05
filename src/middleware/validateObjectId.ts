@@ -9,7 +9,8 @@ const { type, message } = new NotFoundError('Invalid ID.')
  */
 export default (req: Request, res: Response, next: NextFunction) => {
   if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-    return res.status(400).send({ type, message })
+    res.status(400).send({ type, message })
+    return
   }
 
   return next()

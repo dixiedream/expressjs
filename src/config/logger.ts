@@ -26,5 +26,6 @@ export const logger = createLogger({
 })
 
 process.on('unhandledRejection', (ex: any) => {
+  console.log(ex)
   throw ex
 })
