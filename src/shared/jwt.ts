@@ -2,9 +2,10 @@ import jwt from 'jsonwebtoken'
 const { JWT_ISSUER } = process.env
 const TokenExpiredError = 'TokenExpiredError'
 
-export function sign (payload: Record<string, any>, secret: string, expiration: number) {
+export function sign (payload: Record<string, any>, secret: string, expirationMs: number) {
   return jwt.sign(payload, secret, {
-    expiresIn: expiration,
+    algorithm: 'HS256',
+    expiresIn: `${expirationMs}ms`,
     issuer: JWT_ISSUER ?? 'localhost'
   })
 }

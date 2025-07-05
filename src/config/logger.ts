@@ -1,6 +1,6 @@
 import { createLogger, format, transports } from 'winston'
 
-const level = process.env.LOG_LEVEL ?? (process.env.NODE_ENV === 'production' ? 'info' : 'debug')
+const level = process.env.LOG_LEVEL ?? (process.env.NODE_ENV === 'production' ? 'info' : 'warning')
 
 export const logger = createLogger({
   level,
@@ -26,5 +26,6 @@ export const logger = createLogger({
 })
 
 process.on('unhandledRejection', (ex: any) => {
+  console.log(ex)
   throw ex
 })

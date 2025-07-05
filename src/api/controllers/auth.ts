@@ -1,4 +1,3 @@
-import bcrypt from 'bcryptjs'
 import crypto from 'node:crypto'
 import { sendMail } from '../../shared/sendMail.js'
 import { AuthenticationFailedError } from '../../shared/errors/AuthenticationError/AuthenticationFailedError.js'
@@ -14,8 +13,10 @@ import { Email } from '../../types/Core.js'
 import { LoginDataInput } from '../../types/Requests.js'
 import { validateLoginData } from '../../shared/validators.js'
 import { UserModel } from '../models/User.js'
-import tokenUtils from '../../shared/token.js'
+import tokenUtils from '../../shared/tokenUtils.js'
 import moment from 'moment'
+import passwordUtils from '../../shared/passwordUtils.js'
+import { logger } from '../../config/logger.js'
 
 const JWT_REFRESH_PRIVATE_KEY = process.env.JWT_REFRESH_PRIVATE_KEY ?? 'NOT_DEFINED'
 const RESET_PASSWORD_URL = process.env.RESET_PASSWORD_URL ?? 'localhost'
@@ -36,7 +37,7 @@ export default {
     const user = await UserModel.findOne({ email: body.email }).exec()
     if (user == null) throw new AuthenticationFailedError()
 
-    const validPassword = await bcrypt.compare(body.password, user.password)
+    const validPassword = await passwordUtils.verify(body.password, user.password, user.passwordEncryption)
     if (!validPassword) {
       throw new AuthenticationFailedError()
     }
@@ -52,6 +53,7 @@ export default {
     try {
       validateForgotPassword(body)
     } catch (e: any) {
+      logger.debug(e)
       throw new InvalidDataError(e)
     }
 
