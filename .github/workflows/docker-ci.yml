@@ -1,0 +1,156 @@
+name: Docker CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      IMAGE_REPO_NAME:
+        description: "The base image name"
+        required: true
+      LATEST_BUILD_TAG:
+        description: "Tag for latest version"
+        required: false
+        default: "latest"
+      PUSH_DOCKER_IMAGES:
+        description: "Push Docker images?"
+        required: false
+        type: boolean
+        default: true
+
+jobs:
+  ci:
+    runs-on: alpine-latest
+
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}
+      cancel-in-progress: false
+
+    env:
+      IMAGE_REPO_NAME: ${{ github.event.inputs.IMAGE_REPO_NAME }}
+      LATEST_BUILD_TAG: ${{ github.event.inputs.LATEST_BUILD_TAG }}
+      PUSH_DOCKER_IMAGES: ${{ github.event.inputs.PUSH_DOCKER_IMAGES }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Set dynamic env vars
+      - name: Compute Git metadata
+        id: meta
+        run: |
+          echo "BRANCH_NAME=$(git rev-parse --abbrev-ref HEAD)" >> $GITHUB_ENV
+          echo "COMMIT_TAG=$(git rev-parse HEAD | cut -c1-7)" >> $GITHUB_ENV
+          echo "PKG_VERSION=$(jq -r .version package.json)" >> $GITHUB_ENV
+          echo "BUILD_IMAGE_REPO_TAG=${{ env.IMAGE_REPO_NAME }}:${{ github.run_id }}" >> $GITHUB_ENV
+
+      # Start notification
+      - name: Notify Slack (Start)
+        uses: slackapi/slack-github-action@v1
+        with:
+          payload: |
+            {
+              "attachments": [
+                {
+                  "color": "warning",
+                  "text": "Job started *${{ github.workflow }}* – ${{ env.PKG_VERSION }} (<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|Open>)"
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+      # Build base image
+      - name: Build: Base
+        run: docker build -t ${{ env.BUILD_IMAGE_REPO_TAG }}-base --target base .
+
+      # Linting & Unit tests
+      - name: Build: Test
+        run: docker build -t ${{ env.BUILD_IMAGE_REPO_TAG }}-test --target test .
+
+      # Integration tests with retry + teardown
+      - name: Integration tests
+        run: |
+          docker run --name testDb -d mongo
+          set +e
+          for i in 1 2; do
+            docker run --link testDb:db --rm \
+              -e JWT_PRIVATE_KEY=testSecret \
+              -e JWT_ISSUER=https://your.issuer.com \
+              -e MONGO_CONNECTION=mongodb://db/expressjs_tests \
+              -u node ${{ env.BUILD_IMAGE_REPO_TAG }}-test && break
+          done
+          exit_code=$?
+          docker rm --force testDb
+          exit $exit_code
+
+      # Audit & scans
+      - name: Build: Audit
+        run: docker build -t ${{ env.BUILD_IMAGE_REPO_TAG }}-audit --target audit .
+
+      # Production image & tagging
+      - name: Build: Production
+        run: |
+          docker build -t ${{ env.BUILD_IMAGE_REPO_TAG }} .
+          docker tag ${{ env.BUILD_IMAGE_REPO_TAG }} ${{ env.IMAGE_REPO_NAME }}:${{ env.COMMIT_TAG }}
+          docker tag ${{ env.BUILD_IMAGE_REPO_TAG }} ${{ env.IMAGE_REPO_NAME }}:${{ env.PKG_VERSION }}
+          docker tag ${{ env.BUILD_IMAGE_REPO_TAG }} ${{ env.IMAGE_REPO_NAME }}:${{ env.LATEST_BUILD_TAG }}
+          docker tag ${{ env.BUILD_IMAGE_REPO_TAG }} ${{ env.IMAGE_REPO_NAME }}:${{ env.BRANCH_NAME }}-latest
+
+      # Push images (conditional)
+      - name: Docker login
+        if: env.PUSH_DOCKER_IMAGES == 'true'
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ secrets.REGISTRY_NAME }}
+          username: ${{ secrets.REGISTRY_CREDS_USR }}
+          password: ${{ secrets.REGISTRY_CREDS_PSW }}
+
+      - name: Push Docker images
+        if: env.PUSH_DOCKER_IMAGES == 'true'
+        run: |
+          for tag in ${{ github.run_id }} ${{ env.COMMIT_TAG }} ${{ env.PKG_VERSION }} ${{ env.LATEST_BUILD_TAG }} ${{ env.BRANCH_NAME }}-latest; do
+            docker push ${{ env.IMAGE_REPO_NAME }}:$tag
+          done
+
+      # Cleanup workspace every 5th run
+      - name: Conditional workspace cleanup
+        if: ${{ (github.run_number % 5) == 0 }}
+        run: |
+          echo "Cleaning workspace…"
+          rm -rf *
+
+      # Final Slack notifications
+      - name: Slack: Success
+        if: success()
+        uses: slackapi/slack-github-action@v1
+        with:
+          payload: |
+            {
+              "attachments": [
+                {
+                  "color": "good",
+                  "text": "Job succeeded *${{ github.workflow }}* (<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|Details>)"
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+      - name: Slack: Failure
+        if: failure()
+        uses: slackapi/slack-github-action@v1
+        with:
+          payload: |
+            {
+              "attachments": [
+                {
+                  "color": "danger",
+                  "text": "Job failed *${{ github.workflow }}* (<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|Details>)"
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
